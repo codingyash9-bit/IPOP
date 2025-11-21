@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/icons';
 import { Github } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 function GoogleIcon() {
   return (
@@ -26,6 +27,14 @@ function GoogleIcon() {
 
 export function LoginPage() {
   const { login, isLoading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    setEmail('demo@ipop.com');
+    setPassword('demopassword');
+  }, []);
+
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background">
       <Card className="mx-auto max-w-sm w-full">
@@ -60,13 +69,20 @@ export function LoginPage() {
                 id="email"
                 type="email"
                 placeholder="m@example.com"
-                defaultValue="demo@ipop.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled
               />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" defaultValue="demopassword" disabled />
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled
+              />
             </div>
             <Button onClick={login} className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
               {isLoading ? 'Signing In...' : 'Login as Demo User'}
