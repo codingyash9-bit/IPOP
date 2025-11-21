@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/icons';
 import { Github } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function GoogleIcon() {
   return (
@@ -27,8 +27,13 @@ function GoogleIcon() {
 
 export function LoginPage() {
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState('demo@ipop.com');
-  const [password, setPassword] = useState('demopassword');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    setEmail('demo@ipop.com');
+    setPassword('demopassword');
+  }, []);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background">

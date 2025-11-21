@@ -1,3 +1,4 @@
+'use client';
 import { ipos } from '@/lib/ipo-data';
 import Link from 'next/link';
 import { Button } from '../ui/button';
@@ -7,6 +8,7 @@ import { Separator } from '../ui/separator';
 import { ShapChart } from './shap-chart';
 import { PredictionGauge } from './prediction-gauge';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 type IpoDetailsProps = {
   ipoId: string;
@@ -14,6 +16,11 @@ type IpoDetailsProps = {
 
 export function IpoDetails({ ipoId }: IpoDetailsProps) {
   const ipo = ipos.find((i) => i.id === ipoId);
+  const [clientReady, setClientReady] = useState(false);
+  useEffect(() => {
+    setClientReady(true);
+  }, []);
+
 
   if (!ipo) {
     return (
@@ -30,6 +37,8 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' }).format(value);
   }
+  
+  const formattedDate = clientReady ? new Date(ipo.ipoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
   return (
     <div className="flex flex-col gap-8">
@@ -74,7 +83,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                     <CardDescription>Factors influencing the AI prediction score.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ShapChart data={ipo.shapExplanations} />
+                    {clientReady ? <ShapChart data={ipo.shapExplanations} /> : <div className="w-full h-80 animate-pulse bg-muted rounded-lg" />}
                 </CardContent>
             </Card>
         </div>
@@ -106,7 +115,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                 <CardContent className="space-y-4 text-sm">
                     <div className="flex justify-between items-center">
                         <span className="text-muted-foreground flex items-center gap-2"><Calendar className="w-4 h-4"/> IPO Date</span>
-                        <span className="font-medium">{new Date(ipo.ipoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        <span className="font-medium">{formattedDate}</span>
                     </div>
                     <Separator/>
                      <div className="flex justify-between items-center">
@@ -121,7 +130,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                      <Separator/>
                      <div className="flex justify-between items-center">
                         <span className="text-muted-foreground flex items-center gap-2"><Briefcase className="w-4 h-4"/> Deal Size</span>
-                        <span className="font-medium">{formatCurrency(ipo.dealSize)}</span>
+                        <span className="font-medium">{clientReady ? formatCurrency(ipo.dealSize) : ''}</span>
                     </div>
                 </CardContent>
             </Card>
