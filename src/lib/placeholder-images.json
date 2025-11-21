@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "logo-aurora",
+      "description": "Aurora Innovations Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1760037028517-e5cc6e3ebd3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxhYnN0cmFjdCUyMGxvZ298ZW58MHx8fHwxNzYzNjcwMDMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract logo"
+    },
+    {
+      "id": "logo-zephyr",
+      "description": "Zephyr Technologies Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1605898643907-844c2bfc764e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0ZWNoJTIwbG9nb3xlbnwwfHx8fDE3NjM2NjQ4MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tech logo"
+    },
+    {
+      "id": "logo-nebula",
+      "description": "Nebula Dynamics Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1564020426549-fabfb8c467ad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzcGFjZSUyMGxvZ298ZW58MHx8fHwxNzYzNzMyMDA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "space logo"
+    },
+    {
+      "id": "logo-cascade",
+      "description": "Cascade Biotherapeutics Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1760860991924-237b4160efbd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxoZWFsdGglMjBsb2dvfGVufDB8fHx8MTc2MzcyNjYxNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "health logo"
+    },
+    {
+      "id": "logo-pinnacle",
+      "description": "Pinnacle Financials Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1749296002879-504ec07b0ec7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmaW5hbmNlJTIwbG9nb3xlbnwwfHx8fDE3NjM3NDA5OTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "finance logo"
+    }
+  ]
 }

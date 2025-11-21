@@ -1,1 +1,8 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/update-ipo-data.ts';
+import '@/ai/flows/calculate-ipo-probability.ts';
+import '@/ai/flows/explain-ipo-prediction-factors.ts';
+import '@/ai/flows/calculate-expected-return.ts';
+import '@/ai/flows/generate-ipo-prediction.ts';
