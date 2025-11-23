@@ -29,6 +29,24 @@
       "description": "Pinnacle Financials Logo",
       "imageUrl": "https://images.unsplash.com/photo-1749296002879-504ec07b0ec7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmaW5hbmNlJTIwbG9nb3xlbnwwfHx8fDE3NjM3NDA5OTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "finance logo"
+    },
+    {
+      "id": "logo-ola",
+      "description": "Ola Electric Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjYXJ8ZW58MHx8fHwxNzYzNzQwOTkwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "car logo"
+    },
+    {
+      "id": "logo-swiggy",
+      "description": "Swiggy Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmb29kfGVufDB8fHx8MTc2Mzc0MDk5MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "food logo"
+    },
+    {
+      "id": "logo-firstcry",
+      "description": "FirstCry Logo",
+      "imageUrl": "https://images.unsplash.com/photo-1525999262335-31a83f158525?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxiYWJ5fGVufDB8fHx8MTc2Mzc0MDk5MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "baby logo"
     }
   ]
 }
