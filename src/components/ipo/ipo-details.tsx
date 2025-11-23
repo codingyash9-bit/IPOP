@@ -13,6 +13,7 @@ import type { Ipo } from '@/lib/types';
 import { runPrediction } from '@/app/ipo/[id]/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
+import { KeyMetricsCard } from './key-metrics-card';
 
 type IpoDetailsProps = {
   ipoId: string;
@@ -107,6 +108,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                     <p className="text-muted-foreground">{ipo.description}</p>
                 </CardContent>
             </Card>
+            <KeyMetricsCard ipo={ipo} />
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BarChart2 className="text-primary"/> AI Prediction Analysis</CardTitle>
