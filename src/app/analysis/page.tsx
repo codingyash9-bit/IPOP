@@ -5,7 +5,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaChart, BarChart, Bell, Bot, Calendar, FileWarning, LineChart, TrendingUp } from 'lucide-react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Area, AreaChart as RechartsAreaChart, Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart as RechartsAreaChart, Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, XAxis, YAxis, Cell } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
