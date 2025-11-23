@@ -31,6 +31,7 @@ export async function runPrediction(ipoId: string): Promise<Partial<Ipo> | { err
         successProbability: result.probabilityOfSuccess,
         expectedReturn: result.expectedReturn,
         shapExplanations: result.shapExplanations,
+        naturalLanguageExplanation: result.naturalLanguageExplanation,
     };
 
   } catch (error) {

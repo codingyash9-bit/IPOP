@@ -2,7 +2,7 @@
 import { ipos as initialIpos } from '@/lib/ipo-data';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { ArrowLeft, Briefcase, Calendar, Info, BarChart2, DollarSign, Tag, TrendingUp, TrendingDown, Percent, Sparkles } from 'lucide-react';
+import { ArrowLeft, Briefcase, Calendar, Info, BarChart2, DollarSign, Tag, TrendingUp, TrendingDown, Percent, Sparkles, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 import { ShapChart } from './shap-chart';
@@ -108,7 +108,27 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                     <p className="text-muted-foreground">{ipo.description}</p>
                 </CardContent>
             </Card>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><FileText className="text-primary"/> AI Summary</CardTitle>
+                    <CardDescription>A natural language summary of the AI's prediction. {isPending && '(Updating...)'}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {isPending ? (
+                      <div className="space-y-2">
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-3/4" />
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground italic">"{ipo.naturalLanguageExplanation}"</p>
+                    )}
+                </CardContent>
+            </Card>
+
             <KeyMetricsCard ipo={ipo} />
+            
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BarChart2 className="text-primary"/> AI Prediction Analysis</CardTitle>

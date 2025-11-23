@@ -15,6 +15,7 @@ export interface Ipo {
   successProbability: number;
   expectedReturn: number;
   shapExplanations: Record<string, number>;
+  naturalLanguageExplanation: string;
   // Engineered Features
   promoterHoldingPost: number;
   revenueTtm: number;
