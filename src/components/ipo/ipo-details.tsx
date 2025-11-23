@@ -1,26 +1,52 @@
 'use client';
-import { ipos } from '@/lib/ipo-data';
+import { ipos as initialIpos } from '@/lib/ipo-data';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { ArrowLeft, Briefcase, Calendar, Info, BarChart2, DollarSign, Tag, TrendingUp, TrendingDown, Percent } from 'lucide-react';
+import { ArrowLeft, Briefcase, Calendar, Info, BarChart2, DollarSign, Tag, TrendingUp, TrendingDown, Percent, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 import { ShapChart } from './shap-chart';
 import { PredictionGauge } from './prediction-gauge';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
+import type { Ipo } from '@/lib/types';
+import { runPrediction } from '@/app/ipo/[id]/actions';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '../ui/skeleton';
 
 type IpoDetailsProps = {
   ipoId: string;
 };
 
 export function IpoDetails({ ipoId }: IpoDetailsProps) {
-  const ipo = ipos.find((i) => i.id === ipoId);
+  const initialIpo = initialIpos.find((i) => i.id === ipoId);
+  const [ipo, setIpo] = useState<Ipo | undefined>(initialIpo);
   const [clientReady, setClientReady] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+
   useEffect(() => {
     setClientReady(true);
   }, []);
 
+  const handleRunPrediction = () => {
+    startTransition(async () => {
+      const result = await runPrediction(ipoId);
+      if ('error' in result) {
+        toast({
+          variant: 'destructive',
+          title: 'Prediction Failed',
+          description: result.error,
+        });
+      } else if (ipo) {
+        setIpo({ ...ipo, ...result });
+        toast({
+          title: 'Prediction Updated',
+          description: `New AI analysis for ${ipo.companyName} is complete.`,
+        });
+      }
+    });
+  };
 
   if (!ipo) {
     return (
@@ -42,12 +68,16 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      <div className="flex justify-between items-center">
         <Button asChild variant="outline" size="sm">
           <Link href="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Link>
+        </Button>
+        <Button onClick={handleRunPrediction} disabled={isPending}>
+            <Sparkles className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+            {isPending ? 'Analyzing...' : 'Run New Prediction'}
         </Button>
       </div>
       
@@ -80,10 +110,14 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BarChart2 className="text-primary"/> AI Prediction Analysis</CardTitle>
-                    <CardDescription>Factors influencing the AI prediction score.</CardDescription>
+                    <CardDescription>Factors influencing the AI prediction score. {isPending && '(Updating...)'}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {clientReady ? <ShapChart data={ipo.shapExplanations} /> : <div className="w-full h-80 animate-pulse bg-muted rounded-lg" />}
+                    {isPending ? (
+                      <div className="w-full h-80 animate-pulse bg-muted rounded-lg" />
+                    ) : (
+                      clientReady ? <ShapChart data={ipo.shapExplanations} /> : <div className="w-full h-80 animate-pulse bg-muted rounded-lg" />
+                    )}
                 </CardContent>
             </Card>
         </div>
@@ -95,14 +129,14 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                     <CardTitle className="flex items-center gap-2">AI Prediction</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-6">
-                    <PredictionGauge value={ipo.predictionScore} size={140} strokeWidth={12} />
+                    {isPending ? <Skeleton className="w-[140px] h-[140px] rounded-full" /> : <PredictionGauge value={ipo.predictionScore} size={140} strokeWidth={12} />}
                     <div className="w-full grid grid-cols-2 gap-4 text-center">
                         <div>
-                            <p className="text-2xl font-bold">{ipo.successProbability}%</p>
-                            <p className="text-sm opacity-80">Success Probability</p>
+                          {isPending ? <Skeleton className="h-7 w-20 mx-auto" /> : <p className="text-2xl font-bold">{ipo.successProbability}%</p>}
+                          <p className="text-sm opacity-80">Success Probability</p>
                         </div>
                          <div>
-                            <p className="text-2xl font-bold">{ipo.expectedReturn.toFixed(1)}%</p>
+                            {isPending ? <Skeleton className="h-7 w-20 mx-auto" /> : <p className="text-2xl font-bold">{ipo.expectedReturn.toFixed(1)}%</p>}
                             <p className="text-sm opacity-80">Expected Return</p>
                         </div>
                     </div>
