@@ -37,7 +37,7 @@ export async function generateIpoPrediction(input: GenerateIpoPredictionInput): 
 const generateIpoPredictionFlow = ai.defineFlow(
   {
     name: 'generateIpoPredictionFlow',
-    inputSchema: GenerateIpo-prediction-input-schema,
+    inputSchema: GenerateIpoPredictionInputSchema,
     outputSchema: GenerateIpoPredictionOutputSchema,
   },
   async input => {
@@ -61,14 +61,8 @@ const generateIpoPredictionFlow = ai.defineFlow(
 
     const predictionScore = Math.round(probabilityResult.probability * 80 + Math.random() * 20);
     
-    // In a real scenario, the SHAP values would be properly calculated
-    const shapExplanations = {
-      'Market Sentiment': 0.3,
-      'Financial Health': 0.25,
-      'Industry Trend': 0.2,
-      'Subscription Rate': 0.15,
-      'Valuation': -0.1,
-    }
+    // In a real scenario, the SHAP values would be properly calculated from your model
+    const shapExplanations = explanationResult.explanation;
 
     return {
         predictionScore: predictionScore,
