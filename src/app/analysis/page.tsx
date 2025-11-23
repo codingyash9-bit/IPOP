@@ -3,86 +3,59 @@ import { useAuth } from '@/hooks/use-auth';
 import { LoginPage } from '@/components/auth/login-page';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, LineChart, AreaChart, PieChart, Info, TrendingUp, TrendingDown, Target, HelpCircle } from 'lucide-react';
+import { AreaChart, BarChart, Bell, Bot, Calendar, FileWarning, LineChart, TrendingUp } from 'lucide-react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar, BarChart as RechartsBarChart, XAxis, YAxis, Line, LineChart as RechartsLineChart, Area, AreaChart as RechartsAreaChart, Pie, PieChart as RechartsPieChart, Cell } from 'recharts';
+import { Area, AreaChart as RechartsAreaChart, Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, XAxis, YAxis } from 'recharts';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 // --- Mock Data ---
 
-const modelPerformanceData = {
-  classification: {
-    auc: 0.82,
-    precision: 0.75,
-    recall: 0.78,
-    f1: 0.76,
-  },
-  regression: {
-    mae: 8.5,
-    rmse: 12.3,
-    r2: 0.65,
-  },
-  trainingDate: '2024-07-28',
-  dataRange: '2022-01-01 to 2024-06-30',
-};
-
-const backtestResults = {
-  strategyA: {
-    totalReturn: 45.2,
-    annualizedReturn: 21.5,
-    sharpeRatio: 1.8,
-    maxDrawdown: -15.8,
-    winRate: 0.68,
-  },
-  strategyB: {
-    totalReturn: 78.5,
-    annualizedReturn: 35.1,
-    sharpeRatio: 2.5,
-    maxDrawdown: -10.2,
-    winRate: 0.82,
-  },
-};
-
-const returnHistoryData = [
-  { date: '2023-01', "Strategy A": 100, "Strategy B": 100 },
-  { date: '2023-02', "Strategy A": 102, "Strategy B": 105 },
-  { date: '2023-03', "Strategy A": 105, "Strategy B": 110 },
-  { date: '2023-04', "Strategy A": 103, "Strategy B": 108 },
-  { date: '2023-05', "Strategy A": 110, "Strategy B": 120 },
-  { date: '2023-06', "Strategy A": 115, "Strategy B": 125 },
-  { date: '2023-07', "Strategy A": 112, "Strategy B": 122 },
-  { date: '2023-08', "Strategy A": 120, "Strategy B": 135 },
-  { date: '2023-09', "Strategy A": 125, "Strategy B": 145 },
-  { date: '2023-10', "Strategy A": 130, "Strategy B": 155 },
-  { date: '2023-11', "Strategy A": 140, "Strategy B": 170 },
-  { date: '2023-12', "Strategy A": 145.2, "Strategy B": 178.5 },
+const modelPerformanceHistory = [
+  { date: '2024-07-01', auc: 0.82, 'mae%': 8.5 },
+  { date: '2024-07-08', auc: 0.81, 'mae%': 8.7 },
+  { date: '2024-07-15', auc: 0.83, 'mae%': 8.4 },
+  { date: '2024-07-22', auc: 0.79, 'mae%': 9.1 },
+  { date: '2024-07-29', auc: 0.78, 'mae%': 9.5 },
 ];
 
-const featureImportanceData = [
-    { name: 'gmp_score', value: 0.35, fill: 'hsl(var(--chart-1))' },
-    { name: 'qib_subscription_rate', value: 0.25, fill: 'hsl(var(--chart-2))' },
-    { name: 'sector_return_30d', value: 0.15, fill: 'hsl(var(--chart-3))' },
-    { name: 'promoter_holding_pct_after', value: 0.10, fill: 'hsl(var(--chart-4))' },
-    { name: 'revenue_cagr_3y', value: 0.08, fill: 'hsl(var(--chart-5))' },
-    { name: 'other', value: 0.07, fill: 'hsl(var(--muted))' },
+const dataDriftData = [
+    { feature: 'gmp_score', psi: 0.08, status: 'Normal' },
+    { feature: 'qib_subscription_rate', psi: 0.15, status: 'Warning' },
+    { feature: 'sector_return_30d', psi: 0.28, status: 'Alert' },
+    { feature: 'revenue_cagr_3y', psi: 0.05, status: 'Normal' },
+    { feature: 'promoter_holding_pct_after', psi: 0.02, status: 'Normal' },
 ];
+
+const alertHistory = [
+    { id: 1, time: '2024-07-29 10:00', type: 'Data Drift', message: 'High drift detected in `sector_return_30d` (PSI=0.28)', status: 'Alert' },
+    { id: 2, time: '2024-07-29 08:00', type: 'Model Retraining', message: 'Model v1.3.1 promoted to production. AUC improved by 3%.', status: 'Info' },
+    { id: 3, time: '2024-07-28 14:00', type: 'Model Performance', message: 'Regression MAE increased by 15% WoW.', status: 'Warning' },
+    { id: 4, time: '2024-07-27 09:00', type: 'Data Ingestion', message: 'Daily data ingestion pipeline failed.', status: 'Alert' },
+];
+
+const lastRetraining = {
+    date: '2024-07-29 08:00',
+    newVersion: 'v1.3.1',
+    trigger: 'Scheduled (Weekly)',
+    previousAuc: 0.79,
+    newAuc: 0.82,
+}
 
 // --- Chart Configurations ---
 
-const lineChartConfig = {
-  "Strategy A": { label: "Strategy A", color: "hsl(var(--chart-2))" },
-  "Strategy B": { label: "Strategy B (AI-Powered)", color: "hsl(var(--chart-1))" },
+const performanceChartConfig = {
+  auc: { label: "AUC", color: "hsl(var(--chart-1))" },
 } satisfies ChartConfig;
 
-const pieChartConfig = {
-    value: { label: "Importance" },
-    ...featureImportanceData.reduce((acc, cur) => ({...acc, [cur.name]: {label: cur.name, color: cur.fill}}), {})
+const driftChartConfig = {
+  psi: { label: "PSI", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
 
 
 // --- Main Component ---
 
-export default function AnalysisPage() {
+export default function MonitoringPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   if (authLoading) {
@@ -111,126 +84,100 @@ export default function AnalysisPage() {
       <div className="flex flex-col gap-8">
         <header>
           <h1 className="text-3xl font-bold font-headline tracking-tight">
-            Model & Backtest Analysis
+            Model Monitoring
           </h1>
           <p className="text-muted-foreground">
-            Performance metrics for the prediction models and backtested strategies.
+            Live metrics for data drift, model performance, and system health.
           </p>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             <Card>
+            <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Target /> Classification Model</CardTitle>
-                    <CardDescription>Predicts if listing price will go up or down.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><TrendingUp/> Classification Performance</CardTitle>
+                    <CardDescription>Weekly AUC for listing day success prediction.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4 text-sm">
-                    <MetricDisplay label="AUC" value={modelPerformanceData.classification.auc.toFixed(2)} />
-                    <MetricDisplay label="F1-Score" value={modelPerformanceData.classification.f1.toFixed(2)} />
-                    <MetricDisplay label="Precision" value={modelPerformanceData.classification.precision.toFixed(2)} />
-                    <MetricDisplay label="Recall" value={modelPerformanceData.classification.recall.toFixed(2)} />
+                <CardContent className="h-40">
+                    <ChartContainer config={performanceChartConfig} className="h-full w-full">
+                        <RechartsAreaChart data={modelPerformanceHistory} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12}/>
+                            <YAxis type="number" domain={[0.7, 0.9]} tickLine={false} axisLine={false} tickMargin={8} fontSize={12}/>
+                            <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
+                            <Area type="monotone" dataKey="auc" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1), 0.2)" strokeWidth={2} dot={true} />
+                        </RechartsAreaChart>
+                    </ChartContainer>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><FileWarning/> Data Drift (PSI)</CardTitle>
+                    <CardDescription>Population Stability Index for key features.</CardDescription>
+                </CardHeader>
+                <CardContent className="h-40">
+                   <ChartContainer config={driftChartConfig} className="h-full w-full">
+                        <RechartsBarChart data={dataDriftData} layout="vertical" margin={{ top: 0, right: 20, left: -10, bottom: -10 }}>
+                             <YAxis dataKey="feature" type="category" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} width={140}/>
+                             <XAxis type="number" domain={[0, 0.4]} hide/>
+                            <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
+                            <Bar dataKey="psi" radius={4}>
+                                {dataDriftData.map((item) => (
+                                    <Cell key={item.feature} fill={item.status === 'Alert' ? 'hsl(var(--destructive))' : item.status === 'Warning' ? 'hsl(var(--chart-5))' : 'hsl(var(--chart-2))'} />
+                                ))}
+                            </Bar>
+                        </RechartsBarChart>
+                    </ChartContainer>
                 </CardContent>
             </Card>
              <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><TrendingUp /> Regression Model</CardTitle>
-                    <CardDescription>Predicts the percentage change on listing day.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Bot/> Last Retraining Run</CardTitle>
+                    <CardDescription>Details of the latest automated model training.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4 text-sm">
-                    <MetricDisplay label="R² Score" value={modelPerformanceData.regression.r2.toFixed(2)} />
-                    <MetricDisplay label="RMSE" value={`${modelPerformanceData.regression.rmse.toFixed(1)}%`} />
-                    <MetricDisplay label="MAE" value={`${modelPerformanceData.regression.mae.toFixed(1)}%`} />
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Info /> Model Details</CardTitle>
-                    <CardDescription>Training and data version information.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                    <div className="flex justify-between"><span>Training Date:</span> <span className="font-medium">{modelPerformanceData.trainingDate}</span></div>
-                    <div className="flex justify-between"><span>Data Range:</span> <span className="font-medium">{modelPerformanceData.dataRange}</span></div>
+                <CardContent className="space-y-3 text-sm">
+                    <div className="flex justify-between"><span>Trigger Time:</span> <span className="font-medium">{lastRetraining.date}</span></div>
+                    <div className="flex justify-between"><span>New Version:</span> <Badge variant="secondary">{lastRetraining.newVersion}</Badge></div>
+                    <div className="flex justify-between items-center">
+                        <span>AUC Change:</span> 
+                        <span className="font-medium text-green-600 flex items-center gap-1">
+                            {lastRetraining.previousAuc.toFixed(2)} → {lastRetraining.newAuc.toFixed(2)}
+                            <TrendingUp className="h-4 w-4"/>
+                        </span>
+                    </div>
                 </CardContent>
             </Card>
         </div>
 
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2"><LineChart/> Backtest: Strategy Performance</CardTitle>
-                <CardDescription>Simulated equity curve of trading strategies over the backtest period.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><Bell/> Recent Alerts & Events</CardTitle>
+                <CardDescription>Log of automated monitoring alerts and system events.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="w-full h-80">
-                    <ChartContainer config={lineChartConfig} className="h-full w-full">
-                        <RechartsLineChart data={returnHistoryData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
-                             <YAxis type="number" domain={['dataMin - 5', 'dataMax + 5']} tickLine={false} axisLine={false} tickMargin={8} />
-                            <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
-                            <Line type="monotone" dataKey="Strategy A" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} />
-                            <Line type="monotone" dataKey="Strategy B" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={false} />
-                        </RechartsLineChart>
-                    </ChartContainer>
-                </div>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[180px]">Timestamp</TableHead>
+                            <TableHead className="w-[150px]">Type</TableHead>
+                            <TableHead>Message</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {alertHistory.map((alert) => (
+                            <TableRow key={alert.id}>
+                                <TableCell className="font-medium">{alert.time}</TableCell>
+                                <TableCell>
+                                    <Badge variant={alert.status === 'Alert' ? 'destructive' : alert.status === 'Warning' ? 'secondary' : 'default'} className={alert.status === 'Warning' ? 'bg-yellow-500/20 text-yellow-700 border-none' : ''}>
+                                        {alert.type}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>{alert.message}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </CardContent>
         </Card>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-1">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><PieChart/> Feature Importance</CardTitle>
-                    <CardDescription>Top factors driving model predictions.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                    <ChartContainer config={pieChartConfig} className="h-64 w-full">
-                        <RechartsPieChart>
-                            <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
-                            <Pie data={featureImportanceData} dataKey="value" nameKey="name" innerRadius={50}>
-                                {featureImportanceData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                                ))}
-                            </Pie>
-                        </RechartsPieChart>
-                    </ChartContainer>
-                </CardContent>
-            </Card>
-            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <StrategyCard title="Strategy A: Baseline" description="Buy all IPOs, hold for 7 days." results={backtestResults.strategyA} />
-                <StrategyCard title="Strategy B: AI-Powered" description="Buy if prob > 60%, hold 7 days." results={backtestResults.strategyB} isAI={true}/>
-            </div>
-        </div>
-
       </div>
     </AppShell>
   );
-}
-
-// --- Sub Components ---
-
-function MetricDisplay({ label, value }: { label: string; value: string | number }) {
-    return (
-        <div className="flex flex-col gap-1 p-2 rounded-md bg-muted/50">
-            <span className="text-muted-foreground">{label}</span>
-            <span className="font-bold text-lg text-foreground">{value}</span>
-        </div>
-    );
-}
-
-function StrategyCard({ title, description, results, isAI = false }: { title: string, description: string, results: typeof backtestResults.strategyA, isAI?: boolean }) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">{title}</span>
-                    {isAI && <Badge>AI</Badge>}
-                </CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
-                <MetricDisplay label="Total Return" value={`${results.totalReturn.toFixed(1)}%`} />
-                <MetricDisplay label="Annualized Return" value={`${results.annualizedReturn.toFixed(1)}%`} />
-                <MetricDisplay label="Sharpe Ratio" value={results.sharpeRatio.toFixed(1)} />
-                <MetricDisplay label="Max Drawdown" value={`${results.maxDrawdown.toFixed(1)}%`} />
-            </CardContent>
-        </Card>
-    );
 }

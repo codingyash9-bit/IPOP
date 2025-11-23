@@ -14,7 +14,7 @@ import { Home, Settings, LineChart } from 'lucide-react';
 
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: Home },
-  { href: '/analysis', label: 'Analysis', icon: LineChart },
+  { href: '/analysis', label: 'Monitoring', icon: LineChart },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
