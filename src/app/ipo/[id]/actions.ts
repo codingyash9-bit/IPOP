@@ -12,11 +12,11 @@ export async function runPrediction(ipoId: string): Promise<Partial<Ipo> | { err
 
   try {
     // In a real app, you'd pull fresh data here.
-    // For now, we use mock data to call the flow.
+    // For this demo, we use mock data from the IPO object to call the flows.
     const predictionInput = {
-        ipoDetails: `Company: ${ipo.companyName}, Industry: ${ipo.industry}`,
-        marketConditions: 'Stable market with moderate investor sentiment.',
-        companyFinancials: 'Mock financial data: Strong revenue growth, narrowing losses.'
+        ipoDetails: `Company: ${ipo.companyName}, Industry: ${ipo.industry}, Description: ${ipo.description}`,
+        marketConditions: 'Current market sentiment is cautiously optimistic, with the index up 5% in the last month.',
+        companyFinancials: `TTM Revenue: ${ipo.revenueTtm}, Profit Margin: ${ipo.profitMargin}%, ROE: ${ipo.roe}%, D/E Ratio: ${ipo.debtToEquity}`
     };
     
     // Simulate a slightly longer AI process
@@ -24,8 +24,8 @@ export async function runPrediction(ipoId: string): Promise<Partial<Ipo> | { err
 
     const result = await generateIpoPrediction(predictionInput);
     
-    // In a real app, you'd save this to the database.
-    // Here, we just return the new data.
+    // In a real app, you'd save this to a database.
+    // Here, we just return the new data to be updated in the client state.
     return {
         predictionScore: result.predictionScore,
         successProbability: result.probabilityOfSuccess,

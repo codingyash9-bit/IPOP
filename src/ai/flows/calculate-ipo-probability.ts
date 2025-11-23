@@ -43,14 +43,16 @@ const calculateIpoProbabilityPrompt = ai.definePrompt({
   output: {
     schema: CalculateIpoProbabilityOutputSchema,
   },
-  prompt: `You are an AI expert in IPO analysis. Given the following information, calculate the probability of the IPO being successful and provide a brief explanation.
+  prompt: `You are an AI expert in IPO analysis. Given the following information, calculate the probability of the IPO being successful and provide a brief explanation. Your primary output should be a probability score between 0 and 1.
 
 Company Name: {{{companyName}}}
 Industry: {{{industry}}}
 Financial Data: {{{financialData}}}
 Market Conditions: {{{marketConditions}}}
 
-Calculate the probability of the IPO being successful (between 0 and 1) and explain your reasoning. Return the probability and explanation in JSON format.`,
+Based on a holistic analysis of the provided data, estimate the likelihood of a successful listing (where the price increases on the first day). Provide a single probability value. For example, if you think it's highly likely, you might return 0.85. If it's a toss-up, 0.5. If it's very risky, 0.2.
+
+Return ONLY the probability and a short explanation in the specified JSON format.`,
 });
 
 const calculateIpoProbabilityFlow = ai.defineFlow(
@@ -60,6 +62,8 @@ const calculateIpoProbabilityFlow = ai.defineFlow(
     outputSchema: CalculateIpoProbabilityOutputSchema,
   },
   async input => {
+    // In a real implementation, this would call a trained ML model (e.g., XGBoost).
+    // For this demo, we use a powerful generative model to simulate the prediction.
     const {output} = await calculateIpoProbabilityPrompt(input);
     return output!;
   }

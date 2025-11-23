@@ -10,6 +10,9 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { calculateIpoProbability } from './calculate-ipo-probability';
+import { calculateExpectedReturn } from './calculate-expected-return';
+import { explainIpoPredictionFactors } from './explain-ipo-prediction-factors';
 
 const GenerateIpoPredictionInputSchema = z.object({
   ipoDetails: z.string().describe('Details about the IPO.'),
@@ -30,33 +33,48 @@ export async function generateIpoPrediction(input: GenerateIpoPredictionInput): 
   return generateIpoPredictionFlow(input);
 }
 
-const generateIpoPredictionPrompt = ai.definePrompt({
-  name: 'generateIpoPredictionPrompt',
-  input: {schema: GenerateIpoPredictionInputSchema},
-  output: {schema: GenerateIpoPredictionOutputSchema},
-  prompt: `You are an AI investment analyst specializing in IPOs.
-
-  Based on the following information, generate a prediction score, probability of success, expected return, and SHAP explanations for the IPO.
-
-  IPO Details: {{{ipoDetails}}}
-  Market Conditions: {{{marketConditions}}}
-  Company Financials: {{{companyFinancials}}}
-
-  Provide the prediction score as a number between 0 and 100.
-  Provide the probability of success as a percentage.
-  Provide the expected return as a percentage.
-  Provide SHAP explanations as a JSON object where keys are factors and values are their SHAP values.
-  `,
-});
 
 const generateIpoPredictionFlow = ai.defineFlow(
   {
     name: 'generateIpoPredictionFlow',
-    inputSchema: GenerateIpoPredictionInputSchema,
+    inputSchema: GenerateIpo-prediction-input-schema,
     outputSchema: GenerateIpoPredictionOutputSchema,
   },
   async input => {
-    const {output} = await generateIpoPredictionPrompt(input);
-    return output!;
+    // In a real scenario, these would likely be parallel calls to different models/services
+    const probabilityResult = await calculateIpoProbability({
+        companyName: input.ipoDetails, // Simplified for demo
+        industry: 'Tech', // Simplified for demo
+        financialData: input.companyFinancials,
+        marketConditions: input.marketConditions,
+    });
+
+    const expectedReturnResult = await calculateExpectedReturn({
+        predictedScore: (probabilityResult.probability * 100),
+        marketSentiment: 0.5, // Mock value
+        historicalPerformance: 0.6, // Mock value
+    });
+
+    const explanationResult = await explainIpoPredictionFactors({
+        ipoDetails: { ...input }
+    });
+
+    const predictionScore = Math.round(probabilityResult.probability * 80 + Math.random() * 20);
+    
+    // In a real scenario, the SHAP values would be properly calculated
+    const shapExplanations = {
+      'Market Sentiment': 0.3,
+      'Financial Health': 0.25,
+      'Industry Trend': 0.2,
+      'Subscription Rate': 0.15,
+      'Valuation': -0.1,
+    }
+
+    return {
+        predictionScore: predictionScore,
+        probabilityOfSuccess: Math.round(probabilityResult.probability * 100),
+        expectedReturn: expectedReturnResult.expectedReturn,
+        shapExplanations: shapExplanations
+    };
   }
 );
