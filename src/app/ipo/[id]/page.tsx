@@ -4,9 +4,11 @@ import { LoginPage } from '@/components/auth/login-page';
 import { AppShell } from '@/components/layout/app-shell';
 import { IpoDetails } from '@/components/ipo/ipo-details';
 import { Skeleton } from '@/components/ui/skeleton';
+import { use } from 'react';
 
-export default function IpoDetailsPage({ params }: { params: { id: string } }) {
+export default function IpoDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const { id } = use(params);
 
   if (isLoading) {
     return (
@@ -33,7 +35,7 @@ export default function IpoDetailsPage({ params }: { params: { id: string } }) {
 
   return (
     <AppShell>
-      <IpoDetails ipoId={params.id} />
+      <IpoDetails ipoId={id} />
     </AppShell>
   );
 }
