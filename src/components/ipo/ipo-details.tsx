@@ -62,7 +62,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
   }
   
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' }).format(value);
+    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', notation: 'compact' }).format(value);
   }
   
   const formattedDate = clientReady ? new Date(ipo.ipoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
@@ -156,7 +156,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                     <Separator/>
                      <div className="flex justify-between items-center">
                         <span className="text-muted-foreground flex items-center gap-2"><DollarSign className="w-4 h-4"/> Price Range</span>
-                        <span className="font-medium">${ipo.priceRange[0]} - ${ipo.priceRange[1]}</span>
+                        <span className="font-medium">₹{ipo.priceRange[0]} - ₹{ipo.priceRange[1]}</span>
                     </div>
                      <Separator/>
                     <div className="flex justify-between items-center">
