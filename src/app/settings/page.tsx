@@ -15,13 +15,45 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { RefreshCw, Upload } from 'lucide-react';
 import { handleUpdateData } from './actions';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+
+// You have provided this function.
+// In a real app this would call your backend.
+export async function handleParseProspectus(file: File) {
+  const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE;
+  const SECRET_TOKEN = process.env.NEXT_PUBLIC_BACKEND_TOKEN;
+
+  if (!BACKEND_BASE) {
+    return { success: false, message: 'Backend service is not configured.' };
+  }
+
+  const formData = new FormData();
+  formData.append("file", file, file.name);
+
+  try {
+    const res = await fetch(`${BACKEND_BASE}/parse/`, {
+      method: "POST",
+      headers: {
+        "x-internal-token": SECRET_TOKEN || ''
+      },
+      body: formData,
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.detail || "Parse failed");
+    return { success: true, message: `Successfully parsed ${file.name}.`, parsed: j.parsed };
+  } catch (err: any) {
+     console.error(err);
+     return { success: false, message: err.message || "Parse failed" };
+  }
+}
+
 
 export default function SettingsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onSync = async () => {
     setIsSyncing(true);
@@ -41,20 +73,38 @@ export default function SettingsPage() {
     setIsSyncing(false);
   };
   
-  const handleParseProspectus = async () => {
+  const onParseProspectus = async () => {
+    if (!fileInputRef.current?.files?.length) {
+      toast({
+        variant: 'destructive',
+        title: 'No File Selected',
+        description: 'Please select a prospectus PDF file to parse.',
+      });
+      return;
+    }
+    
+    const file = fileInputRef.current.files[0];
     setIsParsing(true);
     toast({
         title: 'Parsing Prospectus...',
-        description: 'This is a demo. In a real app, the PDF would be processed in the backend.',
+        description: `Uploading and processing ${file.name}.`,
     });
 
-    // Simulate backend processing
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    const result = await handleParseProspectus(file);
 
-    toast({
-        title: 'Parsing Complete',
-        description: 'Successfully extracted data for "Innovate Corp".',
-    });
+    if (result.success) {
+        toast({
+            title: 'Parsing Complete',
+            description: result.message,
+        });
+        console.log('Parsed Data:', result.parsed);
+    } else {
+        toast({
+            variant: 'destructive',
+            title: 'Parsing Failed',
+            description: result.message,
+        });
+    }
     setIsParsing(false);
   }
   
@@ -107,9 +157,9 @@ export default function SettingsPage() {
                 <CardContent className="space-y-4">
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                         <Label htmlFor="prospectus-file">PDF Document</Label>
-                        <Input id="prospectus-file" type="file" accept=".pdf" />
+                        <Input id="prospectus-file" type="file" accept=".pdf" ref={fileInputRef} />
                     </div>
-                    <Button onClick={handleParseProspectus} disabled={isParsing}>
+                    <Button onClick={onParseProspectus} disabled={isParsing}>
                         <Upload className={`mr-2 h-4 w-4 ${isParsing ? 'animate-spin' : ''}`} />
                         {isParsing ? 'Parsing...' : 'Upload & Parse'}
                     </Button>

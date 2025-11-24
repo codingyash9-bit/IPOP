@@ -1,24 +1,34 @@
 'use server';
 
-import { updateIpoData } from '@/ai/flows/update-ipo-data';
+const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE; // e.g., https://api.yourdomain.com
+const SECRET_TOKEN = process.env.NEXT_PUBLIC_BACKEND_TOKEN; // for dev only; avoid exposing in prod
 
 export async function handleUpdateData() {
+  if (!BACKEND_BASE) {
+    return { success: false, message: 'Backend service is not configured.' };
+  }
+  
   try {
-    // In a real application, you would get these from a secure store.
-    const input = {
-      apiKey: process.env.THIRD_PARTY_API_KEY || 'test-api-key',
-      apiUrl: 'https://api.example.com/ipos', // A mock API endpoint
-    };
-    
-    const result = await updateIpoData(input);
+    const res = await fetch(`${BACKEND_BASE}/sync/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-token": SECRET_TOKEN || ''
+      },
+      body: JSON.stringify({ source: "thirdparty", force: true })
+    });
 
-    if (!result.success) {
-      throw new Error(result.message);
+    const j = await res.json();
+    if (!res.ok) {
+        // Use a generic message for the UI but log the specific error
+        console.error('Sync failed:', j.detail || 'Unknown error');
+        throw new Error("Failed to sync data from the provider.");
     }
     
-    return { success: true, message: result.message };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return { success: true, message: `Successfully synced ${j.count} IPOs.` };
+  } catch (err: any) {
+    console.error(err);
+    const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
     // For the demo, we show a friendlier error message
     return { success: false, message: `This is a demo. The backend returned: "${errorMessage}"` };
   }
