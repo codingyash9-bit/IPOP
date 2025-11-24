@@ -14,6 +14,7 @@ import { runPrediction } from '@/app/ipo/[id]/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 import { KeyMetricsCard } from './key-metrics-card';
+import { NewsSentimentCard } from './news-sentiment-card';
 
 type IpoDetailsProps = {
   ipoId: string;
@@ -126,6 +127,8 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                     )}
                 </CardContent>
             </Card>
+            
+            {ipo.newsSentiment && <NewsSentimentCard sentiment={ipo.newsSentiment} />}
 
             <KeyMetricsCard ipo={ipo} />
             

@@ -24,6 +24,16 @@ export const ipos: Ipo[] = [
       'Profitability': 0.2,
       'Regulatory Scrutiny': -0.05,
     },
+    newsSentiment: {
+      aggregatedScore: 0.85,
+      positiveHeadlines: [
+        { source: 'Economic Times', title: 'PhysicsWallah aims for $1B valuation in upcoming IPO' },
+        { source: 'Business Standard', title: 'Ed-tech giant reports 3x growth in user base' }
+      ],
+      negativeHeadlines: [
+        { source: 'LiveMint', title: 'Analysts raise concerns over high marketing spend' }
+      ]
+    },
     promoterHoldingPost: 60,
     revenueTtm: 8000000000,
     profitMargin: 15.0,
@@ -56,6 +66,16 @@ export const ipos: Ipo[] = [
       'Client Concentration Risk': -0.15,
       'High Valuation': -0.1,
       'Market Leadership': 0.2,
+    },
+     newsSentiment: {
+      aggregatedScore: 0.65,
+      positiveHeadlines: [
+        { source: 'VC Circle', title: 'SaaS unicorn Capillary Tech files for IPO' },
+        { source: 'YourStory', title: 'From startup to IPO: The Capillary journey' }
+      ],
+      negativeHeadlines: [
+        { source: 'Reuters', title: 'Client concentration a key risk in Capillary IPO' }
+      ]
     },
     promoterHoldingPost: 65,
     revenueTtm: 5000000000,
@@ -90,6 +110,15 @@ gmp: 35,
       'Competition from Imports': -0.1,
       'Strong Order Book': 0.15,
     },
+    newsSentiment: {
+      aggregatedScore: 0.70,
+      positiveHeadlines: [
+        { source: 'Economic Times', title: 'PLI scheme boosts Emmvee manufacturing plans' }
+      ],
+      negativeHeadlines: [
+        { source: 'PV Magazine', title: 'Solar module prices remain volatile amid supply chain issues' }
+      ]
+    },
     promoterHoldingPost: 70,
     revenueTtm: 15000000000,
     profitMargin: 8.0,
@@ -122,6 +151,13 @@ gmp: 35,
       'Regulatory Compliance': -0.15,
       'Dependency on Key Clients': -0.1,
       'Consistent Financials': 0.15,
+    },
+    newsSentiment: {
+      aggregatedScore: 0.55,
+      positiveHeadlines: [
+        { source: 'PharmaBiz', title: 'Sudeep Pharma gets regulatory nod for new plant' }
+      ],
+      negativeHeadlines: []
     },
     promoterHoldingPost: 75,
     revenueTtm: 7000000000,

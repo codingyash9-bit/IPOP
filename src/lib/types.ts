@@ -16,6 +16,11 @@ export interface Ipo {
   expectedReturn: number;
   shapExplanations: Record<string, number>;
   naturalLanguageExplanation: string;
+  newsSentiment?: {
+    aggregatedScore: number;
+    positiveHeadlines: { source: string; title: string }[];
+    negativeHeadlines: { source: string; title: string }[];
+  };
   // Engineered Features
   promoterHoldingPost: number;
   revenueTtm: number;
