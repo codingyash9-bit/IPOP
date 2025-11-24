@@ -82,7 +82,7 @@ export default function StrategiesPage() {
 
       const result = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
       
-      if ('error' in result) {
+      if (result && 'error' in result) {
         toast({
           variant: 'destructive',
           title: 'Backtest Failed',
@@ -91,21 +91,23 @@ export default function StrategiesPage() {
         return;
       }
       
-      const newChartData = result.equity_series.map((point: {x:number, y: number}) => ({ x: point.x, strategy: 100000 * point.y, benchmark: 100000 }));
-      setBacktestChartData(newChartData);
+      if(result) {
+          const newChartData = result.equity_series.map((point: {x:number, y: number}) => ({ x: point.x, strategy: 100000 * point.y, benchmark: 100000 }));
+          setBacktestChartData(newChartData);
 
-      setPerformanceMetrics({
-        totalReturn: `${result.total_return_pct.toFixed(2)}%`,
-        sharpeRatio: result.sharpe ? result.sharpe.toFixed(2) : 'N/A',
-        maxDrawdown: result.max_drawdown ? `${result.max_drawdown.toFixed(2)}%` : 'N/A',
-        annualizedReturn: 'N/A',
-        winRate: 'N/A',
-      });
+          setPerformanceMetrics({
+            totalReturn: `${result.total_return_pct.toFixed(2)}%`,
+            sharpeRatio: result.sharpe ? result.sharpe.toFixed(2) : 'N/A',
+            maxDrawdown: result.max_drawdown ? `${result.max_drawdown.toFixed(2)}%` : 'N/A',
+            annualizedReturn: 'N/A',
+            winRate: 'N/A',
+          });
 
-      toast({
-        title: 'Backtest Complete',
-        description: `${result.n_trades} trades were executed.`,
-      });
+          toast({
+            title: 'Backtest Complete',
+            description: `${result.n_trades} trades were executed.`,
+          });
+      }
     });
   };
   
@@ -258,7 +260,7 @@ export default function StrategiesPage() {
                     <ChartContainer config={chartConfig} className="h-full w-full">
                         <LineChart data={backtestChartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                           <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                            <XAxis dataKey="x" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} label="Trades"/>
+                            <XAxis dataKey="x" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} label={{ value: "Trades", position: "insideBottom", offset: -5 }} />
                             <YAxis type="number" domain={['auto', 'auto']} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(val) => `₹${(val/1000).toFixed(0)}k`}/>
                             <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
                             <Legend />
