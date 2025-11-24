@@ -11,23 +11,26 @@ import { useState, useTransition } from 'react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
-import { runBacktest } from './actions';
+import { runBacktest, exportBacktestResults } from './actions';
 
 // --- Default Data ---
 
 const defaultChartData = [
-  { x: 0, y: 1 }, { x: 1, y: 1.02 }, { x: 2, y: 1.05 }, { x: 3, y: 1.03 }, 
-  { x: 4, y: 1.08 }, { x: 5, y: 1.12 }, { x: 6, y: 1.15 }, { x: 7, y: 1.13 }, 
-  { x: 8, y: 1.18 }, { x: 9, y: 1.22 }, { x: 10, y: 1.25 }, { x: 11, y: 1.28 }
-].map(item => ({...item, benchmark: item.y * 0.9 + 0.1}));
+  { x: 0, y: 100000, strategy: 100000, benchmark: 100000 },
+  { x: 1, y: 102000, strategy: 102000, benchmark: 101000 },
+  { x: 2, y: 105000, strategy: 105000, benchmark: 102000 },
+  { x: 3, y: 103000, strategy: 103000, benchmark: 103000 },
+  { x: 4, y: 108000, strategy: 108000, benchmark: 104000 },
+  { x: 5, y: 112000, strategy: 112000, benchmark: 105000 },
+].map(item => ({...item, benchmark: item.strategy * 0.9 + 10000}));
 
 
 const defaultMetrics = {
-  totalReturn: '28.00%',
-  annualizedReturn: '31.50%',
-  maxDrawdown: '-4.50%',
-  sharpeRatio: '2.15',
-  winRate: '75.00%',
+  totalReturn: '12.00%',
+  annualizedReturn: 'N/A',
+  maxDrawdown: '-1.82%',
+  sharpeRatio: 'N/A',
+  winRate: 'N/A',
 };
 
 const chartConfig = {
@@ -42,6 +45,7 @@ export default function StrategiesPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [isBacktesting, startBacktestTransition] = useTransition();
+  const [isExporting, setIsExporting] = useState(false);
   
   const [rules, setRules] = useState([
     { id: 1, feature: 'predictionScore', operator: '>', value: '75' },
@@ -77,7 +81,7 @@ export default function StrategiesPage() {
         return acc;
       }, {} as Record<string, any>);
 
-      const result = await runBacktest({ rules: formattedRules });
+      const result = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
       
       if (result.error) {
         toast({
@@ -88,14 +92,13 @@ export default function StrategiesPage() {
         return;
       }
       
-      // Assuming benchmark is not returned from API for now
-      const newChartData = result.equity_series.map((point: {x:number, y: number}) => ({ x: point.x, strategy: point.y * 100000, benchmark: 100000 }));
+      const newChartData = result.equity_series.map((point: {x:number, y: number}) => ({ x: point.x, strategy: 100000 * point.y, benchmark: 100000 }));
       setBacktestChartData(newChartData);
 
       setPerformanceMetrics({
         totalReturn: `${result.total_return_pct.toFixed(2)}%`,
-        sharpeRatio: result.sharpe.toFixed(2),
-        maxDrawdown: `${result.max_drawdown.toFixed(2)}%`,
+        sharpeRatio: result.sharpe ? result.sharpe.toFixed(2) : 'N/A',
+        maxDrawdown: result.max_drawdown ? `${result.max_drawdown.toFixed(2)}%` : 'N/A',
         annualizedReturn: 'N/A', // Not provided by this backend
         winRate: 'N/A', // Not provided by this backend
       });
@@ -107,11 +110,36 @@ export default function StrategiesPage() {
     });
   };
   
-  const handleExport = () => {
+  const handleExport = async () => {
+    setIsExporting(true);
     toast({
         title: 'Exporting Data...',
-        description: 'This is a PRO feature. In a real app, this would download a CSV file.',
+        description: 'Generating your CSV file.',
     });
+
+    const { blob, error, filename } = await exportBacktestResults(backtestChartData, "backtest_results.csv");
+
+    if (error || !blob) {
+        toast({
+            variant: 'destructive',
+            title: 'Export Failed',
+            description: error,
+        });
+    } else {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        toast({
+            title: 'Export Complete',
+            description: 'Your file has been downloaded.',
+        });
+    }
+    setIsExporting(false);
   }
 
   if (authLoading) {
@@ -208,9 +236,9 @@ export default function StrategiesPage() {
                   <LineChartIcon />
                   Backtest Results
                 </div>
-                <Button variant="outline" size="sm" onClick={handleExport}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Export CSV
+                <Button variant="outline" size="sm" onClick={handleExport} disabled={isExporting}>
+                  <Download className={`mr-2 h-4 w-4 ${isExporting ? 'animate-spin' : ''}`} />
+                  {isExporting ? 'Exporting...' : 'Export CSV'}
                 </Button>
               </CardTitle>
               <CardDescription>Hypothetical performance of the defined strategy.</CardDescription>
