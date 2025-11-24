@@ -14,6 +14,7 @@ import { calculateIpoProbability } from './calculate-ipo-probability';
 import { calculateExpectedReturn } from './calculate-expected-return';
 import { explainIpoPredictionFactors } from './explain-ipo-prediction-factors';
 import { generateNaturalLanguageExplanation } from './generate-natural-language-explanation';
+import { summarizeNewsAndSentiment } from './summarize-news-sentiment';
 
 const GenerateIpoPredictionInputSchema = z.object({
   ipoDetails: z.string().describe('Details about the IPO.'),
@@ -28,6 +29,11 @@ const GenerateIpoPredictionOutputSchema = z.object({
   expectedReturn: z.number().describe('The expected percentage return based on the AI analysis.'),
   shapExplanations: z.record(z.string(), z.number()).describe('SHAP explanations for the prediction.'),
   naturalLanguageExplanation: z.string().describe('A human-readable explanation of the prediction.'),
+  newsSentiment: z.object({
+    aggregatedScore: z.number(),
+    positiveHeadlines: z.array(z.object({ source: z.string(), title: z.string() })),
+    negativeHeadlines: z.array(z.object({ source: z.string(), title: z.string() })),
+  }).describe('The news sentiment analysis.')
 });
 export type GenerateIpoPredictionOutput = z.infer<typeof GenerateIpoPredictionOutputSchema>;
 
@@ -43,17 +49,22 @@ const generateIpoPredictionFlow = ai.defineFlow(
     outputSchema: GenerateIpoPredictionOutputSchema,
   },
   async input => {
+    const companyName = input.ipoDetails.split(',')[0].replace('Company: ', '');
+
     // In a real scenario, these would likely be parallel calls to different models/services
-    const probabilityResult = await calculateIpoProbability({
-        companyName: input.ipoDetails, // Simplified for demo
-        industry: 'Tech', // Simplified for demo
-        financialData: input.companyFinancials,
-        marketConditions: input.marketConditions,
-    });
+    const [probabilityResult, sentimentResult] = await Promise.all([
+      calculateIpoProbability({
+          companyName: companyName,
+          industry: 'Tech', // Simplified for demo
+          financialData: input.companyFinancials,
+          marketConditions: input.marketConditions,
+      }),
+      summarizeNewsAndSentiment({ companyName }),
+    ]);
 
     const expectedReturnResult = await calculateExpectedReturn({
         predictedScore: (probabilityResult.probability * 100),
-        marketSentiment: 0.5, // Mock value
+        marketSentiment: sentimentResult.aggregatedScore, // Use sentiment score
         historicalPerformance: 0.6, // Mock value
     });
 
@@ -67,7 +78,7 @@ const generateIpoPredictionFlow = ai.defineFlow(
     const shapExplanations = explanationResult.explanation;
     
     const naturalLanguageExplanationResult = await generateNaturalLanguageExplanation({
-      ipoName: input.ipoDetails.split(',')[0].replace('Company: ', ''),
+      ipoName: companyName,
       predictionScore: predictionScore,
       shapValues: shapExplanations
     });
@@ -77,7 +88,8 @@ const generateIpoPredictionFlow = ai.defineFlow(
         probabilityOfSuccess: Math.round(probabilityResult.probability * 100),
         expectedReturn: expectedReturnResult.expectedReturn,
         shapExplanations: shapExplanations,
-        naturalLanguageExplanation: naturalLanguageExplanationResult.explanation
+        naturalLanguageExplanation: naturalLanguageExplanationResult.explanation,
+        newsSentiment: sentimentResult,
     };
   }
 );

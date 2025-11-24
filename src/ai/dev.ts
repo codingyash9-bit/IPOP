@@ -8,3 +8,4 @@ import '@/ai/flows/explain-ipo-prediction-factors.ts';
 import '@/ai/flows/calculate-expected-return.ts';
 import '@/ai/flows/generate-ipo-prediction.ts';
 import '@/ai/flows/generate-natural-language-explanation.ts';
+import '@/ai/flows/summarize-news-sentiment.ts';
