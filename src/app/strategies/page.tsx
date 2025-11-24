@@ -65,7 +65,7 @@ export default function StrategiesPage() {
   };
 
   const handleRuleChange = (id: number, field: 'feature' | 'operator' | 'value', newValue: string) => {
-    setRules(rules.map(rule => rule.id === id ? { ...rule, [field]: newValue } : rule));
+    setRules(rules.map(rule => (rule.id === id ? { ...rule, [field]: newValue } : rule)));
   };
   
   const onRunBacktest = () => {
