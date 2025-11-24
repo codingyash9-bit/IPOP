@@ -4,12 +4,13 @@ import { LoginPage } from '@/components/auth/login-page';
 import { AppShell } from '@/components/layout/app-shell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Download, TestTube, LineChart as LineChartIcon } from 'lucide-react';
+import { Plus, Trash2, Download, TestTube, LineChart as LineChartIcon, Sparkles } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Line, LineChart, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { useToast } from '@/hooks/use-toast';
 
 // --- Mock Data ---
 
@@ -43,6 +44,8 @@ const performanceMetrics = {
 
 export default function StrategiesPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const [isBacktesting, setIsBacktesting] = useState(false);
   const [rules, setRules] = useState([
     { id: 1, feature: 'predictionScore', operator: '>', value: '75' },
     { id: 2, feature: 'gmp', operator: '>', value: '20' },
@@ -56,6 +59,28 @@ export default function StrategiesPage() {
     setRules(rules.filter(rule => rule.id !== id));
   };
   
+  const handleRunBacktest = () => {
+    setIsBacktesting(true);
+    toast({
+      title: 'Simulating Backtest...',
+      description: 'This is a PRO feature. In a real app, this would run a historical simulation.',
+    });
+    setTimeout(() => {
+      setIsBacktesting(false);
+       toast({
+        title: 'Backtest Complete',
+        description: 'The hypothetical performance of your strategy is now displayed.',
+      });
+    }, 2000);
+  };
+  
+  const handleExport = () => {
+    toast({
+        title: 'Exporting Data...',
+        description: 'This is a PRO feature. In a real app, this would download a CSV file.',
+    });
+  }
+
   if (authLoading) {
     return (
       <div className="p-8 space-y-8">
@@ -80,7 +105,7 @@ export default function StrategiesPage() {
             Strategy Builder
           </h1>
           <p className="text-muted-foreground">
-            Create, backtest, and analyze your own IPO investment strategies. This is a PRO feature.
+            Create, backtest, and analyze your own IPO investment strategies.
           </p>
         </header>
 
@@ -123,16 +148,17 @@ export default function StrategiesPage() {
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center pt-4">
                  <Button variant="outline" onClick={addRule}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add Rule
                 </Button>
-                <Button disabled>
-                  Run Backtest
+                <Button onClick={handleRunBacktest} disabled={isBacktesting}>
+                   <Sparkles className={`mr-2 h-4 w-4 ${isBacktesting ? 'animate-spin' : ''}`} />
+                  {isBacktesting ? 'Running...' : 'Run Backtest'}
                 </Button>
               </div>
-               <p className="text-xs text-muted-foreground pt-4 text-center">Backtesting is a PRO feature. Upgrade your plan to run custom simulations.</p>
+               <p className="text-xs text-muted-foreground pt-4 text-center">Backtesting and data exports are PRO features.</p>
             </CardContent>
           </Card>
 
@@ -143,7 +169,7 @@ export default function StrategiesPage() {
                   <LineChartIcon />
                   Backtest Results
                 </div>
-                <Button variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" onClick={handleExport}>
                   <Download className="mr-2 h-4 w-4" />
                   Export CSV
                 </Button>
@@ -184,3 +210,5 @@ export default function StrategiesPage() {
     </AppShell>
   );
 }
+
+    
