@@ -12,11 +12,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 // --- Mock Data ---
 
 const modelPerformanceHistory = [
-  { date: '2024-07-01', auc: 0.82, 'mae%': 8.5 },
-  { date: '2024-07-08', auc: 0.81, 'mae%': 8.7 },
-  { date: '2024-07-15', auc: 0.83, 'mae%': 8.4 },
-  { date: '2024-07-22', auc: 0.79, 'mae%': 9.1 },
-  { date: '2024-07-29', auc: 0.78, 'mae%': 9.5 },
+  { date: '2025-07-01', auc: 0.82, 'mae%': 8.5 },
+  { date: '2025-07-08', auc: 0.81, 'mae%': 8.7 },
+  { date: '2025-07-15', auc: 0.83, 'mae%': 8.4 },
+  { date: '2025-07-22', auc: 0.79, 'mae%': 9.1 },
+  { date: '2025-07-29', auc: 0.78, 'mae%': 9.5 },
 ];
 
 const dataDriftData = [
@@ -28,14 +28,14 @@ const dataDriftData = [
 ];
 
 const alertHistory = [
-    { id: 1, time: '2024-07-29 10:00', type: 'Data Drift', message: 'High drift detected in `sector_return_30d` (PSI=0.28)', status: 'Alert' },
-    { id: 2, time: '2024-07-29 08:00', type: 'Model Retraining', message: 'Model v1.3.1 promoted to production. AUC improved by 3%.', status: 'Info' },
-    { id: 3, time: '2024-07-28 14:00', type: 'Model Performance', message: 'Regression MAE increased by 15% WoW.', status: 'Warning' },
-    { id: 4, time: '2024-07-27 09:00', type: 'Data Ingestion', message: 'Daily data ingestion pipeline failed.', status: 'Alert' },
+    { id: 1, time: '2025-07-29 10:00', type: 'Data Drift', message: 'High drift detected in `sector_return_30d` (PSI=0.28)', status: 'Alert' },
+    { id: 2, time: '2025-07-29 08:00', type: 'Model Retraining', message: 'Model v1.3.1 promoted to production. AUC improved by 3%.', status: 'Info' },
+    { id: 3, time: '2025-07-28 14:00', type: 'Model Performance', message: 'Regression MAE increased by 15% WoW.', status: 'Warning' },
+    { id: 4, time: '2025-07-27 09:00', type: 'Data Ingestion', message: 'Daily data ingestion pipeline failed.', status: 'Alert' },
 ];
 
 const lastRetraining = {
-    date: '2024-07-29 08:00',
+    date: '2025-07-29 08:00',
     newVersion: 'v1.3.1',
     trigger: 'Scheduled (Weekly)',
     previousAuc: 0.79,
