@@ -234,7 +234,7 @@ export default function StrategiesPage() {
                 </Button>
               </div>
                <div className="!mt-6">
-                <Button className="w-full" variant="outline" onClick={handleUpgrade}>
+                <Button className="w-full" onClick={handleUpgrade}>
                   <Sparkles className="mr-2 h-4 w-4 text-yellow-500"/> Upgrade to Pro to Save & Export
                 </Button>
                </div>
