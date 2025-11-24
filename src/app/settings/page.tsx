@@ -17,16 +17,15 @@ import { RefreshCw, Upload } from 'lucide-react';
 import { handleUpdateData } from './actions';
 import { useState, useRef } from 'react';
 
-// You have provided this function.
-// In a real app this would call your backend.
-export async function handleParseProspectus(file: File) {
-  const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE;
-  const SECRET_TOKEN = process.env.NEXT_PUBLIC_BACKEND_TOKEN;
+const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE;
+const SECRET_TOKEN = process.env.NEXT_PUBLIC_BACKEND_TOKEN;
 
+// This function now calls your real backend endpoint.
+export async function handleParseProspectus(file: File) {
   if (!BACKEND_BASE) {
     return { success: false, message: 'Backend service is not configured.' };
   }
-
+  
   const formData = new FormData();
   formData.append("file", file, file.name);
 
@@ -57,17 +56,17 @@ export default function SettingsPage() {
 
   const onSync = async () => {
     setIsSyncing(true);
-    const result = await handleUpdateData();
-    if (result.success) {
+    try {
+      const result = await handleUpdateData();
       toast({
         title: 'Data Synced',
-        description: result.message,
+        description: `Successfully synced ${result.count} IPOs.`,
       });
-    } else {
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Sync Failed',
-        description: result.message,
+        description: error.message || 'An unknown error occurred.',
       });
     }
     setIsSyncing(false);
@@ -152,7 +151,7 @@ export default function SettingsPage() {
                     <CardTitle>Prospectus Parser</CardTitle>
                     <CardDescription>
                         Upload a Red Herring Prospectus (RHP) to automatically extract key IPO details.
-                    </CardDescription>
+                    </Description>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid w-full max-w-sm items-center gap-1.5">
