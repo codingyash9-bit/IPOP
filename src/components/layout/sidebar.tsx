@@ -10,11 +10,12 @@ import {
 import { SidebarLogo } from '../icons';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Home, Settings, LineChart } from 'lucide-react';
+import { Home, Settings, LineChart, TestTube, Badge } from 'lucide-react';
 
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: Home },
   { href: '/analysis', label: 'Monitoring', icon: LineChart },
+  { href: '/strategies', label: 'Strategies', icon: TestTube, pro: true },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -41,7 +42,14 @@ export function AppSidebar() {
               >
                 <Link href={item.href}>
                   <item.icon />
-                  <span>{item.label}</span>
+                  <div className="flex items-center justify-between w-full">
+                    <span>{item.label}</span>
+                    {item.pro && (
+                      <div className="text-xs font-bold uppercase bg-primary text-primary-foreground rounded-sm px-1.5 py-0.5">
+                        Pro
+                      </div>
+                    )}
+                  </div>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
