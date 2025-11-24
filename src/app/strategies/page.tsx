@@ -141,6 +141,14 @@ export default function StrategiesPage() {
     }
     setIsExporting(false);
   }
+  
+  const handleUpgrade = () => {
+    // This would call your backend to create a Stripe checkout session
+    toast({
+        title: "Billing Backend Needed",
+        description: "Connect this button to your backend that creates a Stripe checkout session.",
+    });
+  }
 
   if (authLoading) {
     return (
@@ -195,7 +203,7 @@ export default function StrategiesPage() {
                      <Select value={rule.operator} onValueChange={(v) => handleRuleChange(rule.id, 'operator', v)}>
                       <SelectTrigger className="w-[80px]">
                         <SelectValue placeholder="Op" />
-                      </SelectTrigger>
+                      </Trigger>
                       <SelectContent>
                         <SelectItem value=">">&gt;</SelectItem>
                         <SelectItem value="<">&lt;</SelectItem>
@@ -215,7 +223,7 @@ export default function StrategiesPage() {
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between items-center pt-4">
+              <div className="flex justify-between items-center pt-4 border-t mt-4">
                  <Button variant="outline" onClick={addRule}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add Rule
@@ -225,7 +233,11 @@ export default function StrategiesPage() {
                   {isBacktesting ? 'Running...' : 'Run Backtest'}
                 </Button>
               </div>
-               <p className="text-xs text-muted-foreground pt-4 text-center">Backtesting and data exports are PRO features.</p>
+               <div className="!mt-6">
+                <Button className="w-full" variant="outline" onClick={handleUpgrade}>
+                  <Sparkles className="mr-2 h-4 w-4 text-yellow-500"/> Upgrade to Pro to Save & Export
+                </Button>
+               </div>
             </CardContent>
           </Card>
 
