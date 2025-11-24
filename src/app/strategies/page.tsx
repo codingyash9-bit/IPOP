@@ -7,31 +7,22 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Download, TestTube, LineChart as LineChartIcon, Sparkles } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Line, LineChart, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
+import { runBacktest } from './actions';
 
-// --- Mock Data ---
+// --- Default Data ---
 
-const backtestResults = {
-  dates: Array.from({ length: 12 }, (_, i) => `2023-${i + 1}-01`),
-  strategy: [10000, 10200, 10500, 10300, 10800, 11200, 11500, 11300, 11800, 12200, 12500, 12800],
-  benchmark: [10000, 10100, 10200, 10150, 10400, 10600, 10700, 10650, 10900, 11100, 11300, 11500],
-};
+const defaultChartData = [
+  { x: 0, y: 1 }, { x: 1, y: 1.02 }, { x: 2, y: 1.05 }, { x: 3, y: 1.03 }, 
+  { x: 4, y: 1.08 }, { x: 5, y: 1.12 }, { x: 6, y: 1.15 }, { x: 7, y: 1.13 }, 
+  { x: 8, y: 1.18 }, { x: 9, y: 1.22 }, { x: 10, y: 1.25 }, { x: 11, y: 1.28 }
+].map(item => ({...item, benchmark: item.y * 0.9 + 0.1}));
 
-const chartData = backtestResults.dates.map((date, index) => ({
-  date,
-  strategy: backtestResults.strategy[index],
-  benchmark: backtestResults.benchmark[index],
-}));
 
-const chartConfig = {
-  strategy: { label: 'My Strategy', color: 'hsl(var(--chart-1))' },
-  benchmark: { label: 'Nifty 50 Benchmark', color: 'hsl(var(--chart-2))' },
-} satisfies ChartConfig;
-
-const performanceMetrics = {
+const defaultMetrics = {
   totalReturn: '28.00%',
   annualizedReturn: '31.50%',
   maxDrawdown: '-4.50%',
@@ -39,17 +30,27 @@ const performanceMetrics = {
   winRate: '75.00%',
 };
 
+const chartConfig = {
+  strategy: { label: 'My Strategy', color: 'hsl(var(--chart-1))' },
+  benchmark: { label: 'Benchmark', color: 'hsl(var(--chart-2))' },
+} satisfies ChartConfig;
+
 
 // --- Main Component ---
 
 export default function StrategiesPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
-  const [isBacktesting, setIsBacktesting] = useState(false);
+  const [isBacktesting, startBacktestTransition] = useTransition();
+  
   const [rules, setRules] = useState([
     { id: 1, feature: 'predictionScore', operator: '>', value: '75' },
     { id: 2, feature: 'gmp', operator: '>', value: '20' },
   ]);
+
+  const [backtestChartData, setBacktestChartData] = useState(defaultChartData);
+  const [performanceMetrics, setPerformanceMetrics] = useState(defaultMetrics);
+
 
   const addRule = () => {
     setRules([...rules, { id: Date.now(), feature: 'successProbability', operator: '>', value: '80' }]);
@@ -58,20 +59,52 @@ export default function StrategiesPage() {
   const removeRule = (id: number) => {
     setRules(rules.filter(rule => rule.id !== id));
   };
+
+  const handleRuleChange = (id: number, field: 'feature' | 'operator' | 'value', newValue: string) => {
+    setRules(rules.map(rule => rule.id === id ? { ...rule, [field]: newValue } : rule));
+  };
   
-  const handleRunBacktest = () => {
-    setIsBacktesting(true);
-    toast({
-      title: 'Simulating Backtest...',
-      description: 'This is a PRO feature. In a real app, this would run a historical simulation.',
-    });
-    setTimeout(() => {
-      setIsBacktesting(false);
-       toast({
-        title: 'Backtest Complete',
-        description: 'The hypothetical performance of your strategy is now displayed.',
+  const onRunBacktest = () => {
+    startBacktestTransition(async () => {
+      toast({
+        title: 'Running Backtest...',
+        description: 'Your strategy is being simulated against historical data.',
       });
-    }, 2000);
+
+      const formattedRules = rules.reduce((acc, rule) => {
+        // Simple formatter for the demo
+        acc[`${rule.feature}_${rule.operator}`] = parseFloat(rule.value);
+        return acc;
+      }, {} as Record<string, any>);
+
+      const result = await runBacktest({ rules: formattedRules });
+      
+      if (result.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Backtest Failed',
+          description: result.error,
+        });
+        return;
+      }
+      
+      // Assuming benchmark is not returned from API for now
+      const newChartData = result.equity_series.map((point: {x:number, y: number}) => ({ x: point.x, strategy: point.y * 100000, benchmark: 100000 }));
+      setBacktestChartData(newChartData);
+
+      setPerformanceMetrics({
+        totalReturn: `${result.total_return_pct.toFixed(2)}%`,
+        sharpeRatio: result.sharpe.toFixed(2),
+        maxDrawdown: `${result.max_drawdown.toFixed(2)}%`,
+        annualizedReturn: 'N/A', // Not provided by this backend
+        winRate: 'N/A', // Not provided by this backend
+      });
+
+      toast({
+        title: 'Backtest Complete',
+        description: `${result.n_trades} trades were executed.`,
+      });
+    });
   };
   
   const handleExport = () => {
@@ -117,9 +150,9 @@ export default function StrategiesPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                {rules.map((rule, index) => (
+                {rules.map((rule) => (
                   <div key={rule.id} className="flex items-center gap-2">
-                    <Select defaultValue={rule.feature}>
+                    <Select value={rule.feature} onValueChange={(v) => handleRuleChange(rule.id, 'feature', v)}>
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Feature" />
                       </SelectTrigger>
@@ -131,7 +164,7 @@ export default function StrategiesPage() {
                         <SelectItem value="dealSize">Deal Size (Cr)</SelectItem>
                       </SelectContent>
                     </Select>
-                     <Select defaultValue={rule.operator}>
+                     <Select value={rule.operator} onValueChange={(v) => handleRuleChange(rule.id, 'operator', v)}>
                       <SelectTrigger className="w-[80px]">
                         <SelectValue placeholder="Op" />
                       </SelectTrigger>
@@ -141,7 +174,13 @@ export default function StrategiesPage() {
                         <SelectItem value="=">=</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Input type="number" placeholder="Value" defaultValue={rule.value} className="w-[100px]"/>
+                    <Input 
+                      type="number" 
+                      placeholder="Value" 
+                      value={rule.value} 
+                      onChange={(e) => handleRuleChange(rule.id, 'value', e.target.value)}
+                      className="w-[100px]"
+                    />
                     <Button variant="ghost" size="icon" onClick={() => removeRule(rule.id)}>
                       <Trash2 className="h-4 w-4 text-destructive"/>
                     </Button>
@@ -153,7 +192,7 @@ export default function StrategiesPage() {
                   <Plus className="mr-2 h-4 w-4" />
                   Add Rule
                 </Button>
-                <Button onClick={handleRunBacktest} disabled={isBacktesting}>
+                <Button onClick={onRunBacktest} disabled={isBacktesting}>
                    <Sparkles className={`mr-2 h-4 w-4 ${isBacktesting ? 'animate-spin' : ''}`} />
                   {isBacktesting ? 'Running...' : 'Run Backtest'}
                 </Button>
@@ -174,16 +213,17 @@ export default function StrategiesPage() {
                   Export CSV
                 </Button>
               </CardTitle>
-              <CardDescription>Hypothetical performance of the defined strategy (mock data).</CardDescription>
+              <CardDescription>Hypothetical performance of the defined strategy.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="h-60 w-full mb-6">
                     <ChartContainer config={chartConfig} className="h-full w-full">
-                        <LineChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                        <LineChart data={backtestChartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                           <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12}/>
-                            <YAxis type="number" domain={['dataMin - 500', 'dataMax + 500']} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(val) => `₹${(val/1000).toFixed(0)}k`}/>
+                            <XAxis dataKey="x" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} label="Trades"/>
+                            <YAxis type="number" domain={['auto', 'auto']} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(val) => `₹${(val/1000).toFixed(0)}k`}/>
                             <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
+                            <Legend />
                             <Line type="monotone" dataKey="strategy" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={false} />
                              <Line type="monotone" dataKey="benchmark" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} />
                         </LineChart>
@@ -192,7 +232,7 @@ export default function StrategiesPage() {
                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
                     <div className="p-2 bg-muted/50 rounded-md">
                         <p className="text-sm text-muted-foreground">Total Return</p>
-                        <p className="text-lg font-bold text-green-600">{performanceMetrics.totalReturn}</p>
+                        <p className={`text-lg font-bold ${parseFloat(performanceMetrics.totalReturn) >= 0 ? 'text-green-600' : 'text-red-600'}`}>{performanceMetrics.totalReturn}</p>
                     </div>
                      <div className="p-2 bg-muted/50 rounded-md">
                         <p className="text-sm text-muted-foreground">Sharpe Ratio</p>
@@ -210,5 +250,3 @@ export default function StrategiesPage() {
     </AppShell>
   );
 }
-
-    
