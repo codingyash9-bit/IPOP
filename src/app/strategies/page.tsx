@@ -76,14 +76,13 @@ export default function StrategiesPage() {
       });
 
       const formattedRules = rules.reduce((acc, rule) => {
-        // Simple formatter for the demo
-        acc[`${rule.feature}_${rule.operator}`] = parseFloat(rule.value);
+        acc[rule.feature] = { [rule.operator]: parseFloat(rule.value) };
         return acc;
       }, {} as Record<string, any>);
 
       const result = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
       
-      if (result.error) {
+      if ('error' in result) {
         toast({
           variant: 'destructive',
           title: 'Backtest Failed',
@@ -99,8 +98,8 @@ export default function StrategiesPage() {
         totalReturn: `${result.total_return_pct.toFixed(2)}%`,
         sharpeRatio: result.sharpe ? result.sharpe.toFixed(2) : 'N/A',
         maxDrawdown: result.max_drawdown ? `${result.max_drawdown.toFixed(2)}%` : 'N/A',
-        annualizedReturn: 'N/A', // Not provided by this backend
-        winRate: 'N/A', // Not provided by this backend
+        annualizedReturn: 'N/A',
+        winRate: 'N/A',
       });
 
       toast({
@@ -143,7 +142,6 @@ export default function StrategiesPage() {
   }
   
   const handleUpgrade = () => {
-    // This would call your backend to create a Stripe checkout session
     toast({
         title: "Billing Backend Needed",
         description: "Connect this button to your backend that creates a Stripe checkout session.",
