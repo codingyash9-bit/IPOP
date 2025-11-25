@@ -80,7 +80,7 @@ export default function StrategiesPage() {
         return acc;
       }, {} as Record<string, any>);
 
-      const result: any = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
+      const result = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
       
       if (result && result.error) {
         toast({
