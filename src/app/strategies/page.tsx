@@ -80,9 +80,9 @@ export default function StrategiesPage() {
         return acc;
       }, {} as Record<string, any>);
 
-      const result = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
+      const result: any = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
       
-      if (result && 'error' in result) {
+      if (result && result.error) {
         toast({
           variant: 'destructive',
           title: 'Backtest Failed',
@@ -92,7 +92,7 @@ export default function StrategiesPage() {
       }
       
       if(result) {
-          const newChartData = result.equity_series.map((point: {x:number, y: number}) => ({ x: point.x, strategy: 100000 * point.y, benchmark: 100000 }));
+          const newChartData = result.equity_series.map((point: {x:number, equity: number}) => ({ x: point.x, strategy: 100000 * point.equity, benchmark: 100000 }));
           setBacktestChartData(newChartData);
 
           setPerformanceMetrics({
