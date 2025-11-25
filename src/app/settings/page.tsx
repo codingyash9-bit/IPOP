@@ -115,7 +115,7 @@ export default function SettingsPage() {
   if (authLoading) {
      return (
        <AppShell>
-        <div className="space-y-8">
+        <div className="space-y-8 p-4 sm:p-6 lg:p-8">
             <div className="space-y-2">
                 <Skeleton className="h-9 w-1/4" />
                 <Skeleton className="h-4 w-1/2" />
@@ -148,13 +148,13 @@ export default function SettingsPage() {
             <CardHeader>
                 <CardTitle>Data Management</CardTitle>
                 <CardDescription>
-                Manually trigger a data sync to fetch the latest IPO information from our providers.
+                Our system automatically syncs new IPO data and recalculates AI predictions every 6 hours. You can also trigger a manual sync.
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <Button onClick={onSync} disabled={isSyncing}>
                 <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                {isSyncing ? 'Syncing...' : 'Sync IPO Data'}
+                {isSyncing ? 'Syncing...' : 'Sync IPO Data Manually'}
                 </Button>
             </CardContent>
             </Card>
