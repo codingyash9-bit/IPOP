@@ -4,22 +4,12 @@
  * @fileOverview A flow to run a simulated financial backtest for a trading strategy.
  *
  * - runBacktestFlow - A function that simulates a backtest.
- * - StrategyRule - The type for a single trading rule.
  * - BacktestInputSchema - The Zod schema for the backtest input.
  * - BacktestOutputSchema - The Zod schema for the backtest output.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-
-export const StrategyRuleSchema = z.object({
-  id: z.string(),
-  metric: z.string(),
-  condition: z.string(),
-  value: z.string(),
-  action: z.enum(['buy', 'sell']),
-});
-export type StrategyRule = z.infer<typeof StrategyRuleSchema>;
 
 const BacktestInputSchema = z.object({
   rules: z.record(z.string()).describe("An object representing the trading rules. Keys are rule IDs, values are human-readable rule descriptions."),
@@ -39,6 +29,7 @@ const BacktestOutputSchema = z.object({
   equitySeries: z.array(EquityDataPointSchema).describe("An array of daily equity values over the backtest period."),
 });
 export type BacktestOutput = z.infer<typeof BacktestOutputSchema>;
+export type BacktestInput = z.infer<typeof BacktestInputSchema>;
 
 
 const prompt = ai.definePrompt({
@@ -61,7 +52,7 @@ Strategy Rules: {{{jsonStringify rules}}}
 });
 
 
-export const runBacktestFlow = ai.defineFlow(
+const backtestFlow = ai.defineFlow(
     {
         name: 'runBacktestFlow',
         inputSchema: BacktestInputSchema,
@@ -72,3 +63,8 @@ export const runBacktestFlow = ai.defineFlow(
         return output!;
     }
 );
+
+
+export async function runBacktest(input: BacktestInput): Promise<BacktestOutput> {
+    return backtestFlow(input);
+}

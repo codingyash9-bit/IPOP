@@ -1,11 +1,6 @@
 'use server';
 
-import { runBacktestFlow, type StrategyRule } from '@/ai/flows/run-backtest-flow';
-
-type BacktestInput = {
-  rules: Record<string, string>;
-  initialCapital: number;
-}
+import { runBacktest as runBacktestFlow, type BacktestInput } from '@/ai/flows/run-backtest-flow';
 
 export async function runBacktest(input: BacktestInput) {
     try {
