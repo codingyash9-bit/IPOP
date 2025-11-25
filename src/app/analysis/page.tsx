@@ -8,6 +8,7 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '
 import { Area, AreaChart as RechartsAreaChart, Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, XAxis, YAxis, Cell } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // --- Mock Data ---
 
@@ -60,18 +61,20 @@ export default function MonitoringPage() {
 
   if (authLoading) {
     return (
-      <div className="p-8 space-y-8">
-        <div className="h-12 w-1/3 animate-pulse rounded-lg bg-muted" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="h-48 animate-pulse rounded-lg bg-muted" />
-            <div className="h-48 animate-pulse rounded-lg bg-muted" />
-            <div className="h-48 animate-pulse rounded-lg bg-muted" />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3 h-96 animate-pulse rounded-lg bg-muted" />
-            <div className="lg:col-span-2 h-96 animate-pulse rounded-lg bg-muted" />
-        </div>
-      </div>
+      <AppShell>
+          <div className="p-8 space-y-8">
+            <div className="space-y-2">
+              <Skeleton className="h-9 w-1/3" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Skeleton className="h-48" />
+                <Skeleton className="h-48" />
+                <Skeleton className="h-48" />
+            </div>
+            <Skeleton className="h-96" />
+          </div>
+      </AppShell>
     );
   }
 

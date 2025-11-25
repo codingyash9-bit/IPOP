@@ -10,7 +10,7 @@ import { Plus, Trash2, BrainCircuit, Bot, AreaChart, Zap, ArrowRight, Wallet, Tr
 import { useState, useTransition } from 'react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Area, AreaChart as RechartsAreaChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { runBacktest } from './actions';
+import { runBacktest, type BacktestOutput } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -53,7 +53,7 @@ const chartConfig = {
 export default function StrategiesPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [rules, setRules] = useState<Rule[]>(INITIAL_RULES);
-  const [backtestResult, setBacktestResult] = useState<any>(null);
+  const [backtestResult, setBacktestResult] = useState<BacktestOutput | null>(null);
   const [backtestChartData, setBacktestChartData] = useState<any[]>([]);
   const [isBacktestRunning, startBacktestTransition] = useTransition();
   const { toast } = useToast();
@@ -77,8 +77,8 @@ export default function StrategiesPage() {
     }, {} as Record<string, string>);
 
     startBacktestTransition(async () => {
-        const result:any = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
-        if (result.error) {
+        const result = await runBacktest({ rules: formattedRules, initialCapital: 100000 });
+        if ('error' in result) {
              toast({
                 variant: 'destructive',
                 title: 'Backtest Failed',
@@ -104,10 +104,18 @@ export default function StrategiesPage() {
 
   if (authLoading) {
     return (
-      <div className="p-8 space-y-8">
-        <Skeleton className="h-96 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+      <AppShell>
+        <div className="p-8 space-y-8">
+            <div className="space-y-2">
+                <Skeleton className="h-9 w-1/3" />
+                <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-96 w-full" />
+            </div>
+        </div>
+      </AppShell>
     );
   }
 
@@ -128,40 +136,42 @@ export default function StrategiesPage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <Card className="sticky top-20">
+            <Card className="sticky top-24">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BrainCircuit className="text-primary"/> Define Your Strategy</CardTitle>
                     <CardDescription>Create rules to define your custom trading logic.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    {rules.map((rule, index) => (
-                        <div key={rule.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-center p-2 rounded-lg bg-muted/50">
-                            <p className="md:col-span-5 text-xs font-semibold text-muted-foreground">RULE {index + 1}</p>
-                            <Select value={rule.metric} onValueChange={(v: Rule['metric']) => updateRule(rule.id, 'metric', v)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>{Object.entries(METRIC_OPTIONS).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-                            </Select>
-                            <Select value={rule.condition} onValueChange={(v: Rule['condition']) => updateRule(rule.id, 'condition', v)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>{Object.entries(CONDITION_OPTIONS).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-                            </Select>
-                            <Input type="number" value={rule.value} onChange={(e) => updateRule(rule.id, 'value', e.target.value)} placeholder="Value"/>
-                            <Select value={rule.action} onValueChange={(v: Rule['action']) => updateRule(rule.id, 'action', v)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>{Object.entries(ACTION_OPTIONS).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-                            </Select>
-                            <Button variant="ghost" size="icon" onClick={() => removeRule(rule.id)} className="text-muted-foreground hover:text-destructive"><Trash2 size={16}/></Button>
+                <CardContent>
+                    <div className="space-y-4">
+                        {rules.map((rule, index) => (
+                            <div key={rule.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-center p-2 rounded-lg bg-muted/50">
+                                <p className="md:col-span-5 text-xs font-semibold text-muted-foreground">RULE {index + 1}</p>
+                                <Select value={rule.metric} onValueChange={(v: Rule['metric']) => updateRule(rule.id, 'metric', v)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>{Object.entries(METRIC_OPTIONS).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+                                </Select>
+                                <Select value={rule.condition} onValueChange={(v: Rule['condition']) => updateRule(rule.id, 'condition', v)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>{Object.entries(CONDITION_OPTIONS).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+                                </Select>
+                                <Input type="number" value={rule.value} onChange={(e) => updateRule(rule.id, 'value', e.target.value)} placeholder="Value"/>
+                                <Select value={rule.action} onValueChange={(v: Rule['action']) => updateRule(rule.id, 'action', v)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>{Object.entries(ACTION_OPTIONS).map(([k,v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+                                </Select>
+                                <Button variant="ghost" size="icon" onClick={() => removeRule(rule.id)} className="text-muted-foreground hover:text-destructive"><Trash2 size={16}/></Button>
+                            </div>
+                        ))}
+                        <div className="flex flex-wrap gap-2">
+                            <Button variant="outline" onClick={addRule}><Plus className="mr-2"/> Add Rule</Button>
+                            <Button onClick={onRunBacktest} disabled={isBacktestRunning}>
+                                <Bot className={`mr-2 ${isBacktestRunning ? 'animate-spin' : ''}`}/>
+                                {isBacktestRunning ? 'Running Backtest...' : 'Run Backtest'}
+                            </Button>
                         </div>
-                    ))}
-                    <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" onClick={addRule}><Plus className="mr-2"/> Add Rule</Button>
-                        <Button onClick={onRunBacktest} disabled={isBacktestRunning}>
-                            <Bot className={`mr-2 ${isBacktestRunning ? 'animate-spin' : ''}`}/>
-                            {isBacktestRunning ? 'Running Backtest...' : 'Run Backtest'}
-                        </Button>
                     </div>
-                     <div className="!mt-6">
-                        <Button variant="premium" size="lg" className="w-full group bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:shadow-lg transition-shadow">
+                     <div className="mt-6">
+                        <Button variant="default" size="lg" className="w-full group bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:shadow-lg transition-shadow">
                             <Zap className="mr-2 text-yellow-300"/> Upgrade to Pro for More Advanced Rules
                             <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"/>
                         </Button>

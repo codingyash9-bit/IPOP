@@ -33,6 +33,11 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
 
   const handleRunPrediction = () => {
     startTransition(async () => {
+      if (!ipo) return;
+      toast({
+        title: 'Running New Analysis...',
+        description: `The AI is generating a new prediction for ${ipo.companyName}.`,
+      });
       const result = await runPrediction(ipoId);
       if ('error' in result) {
         toast({
@@ -40,7 +45,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
           title: 'Prediction Failed',
           description: result.error,
         });
-      } else if (ipo) {
+      } else {
         setIpo({ ...ipo, ...result });
         toast({
           title: 'Prediction Updated',
@@ -69,7 +74,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
   const formattedDate = clientReady ? new Date(ipo.ipoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
         <Button asChild variant="outline" size="sm">
           <Link href="/">
@@ -128,7 +133,11 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                 </CardContent>
             </Card>
             
-            {ipo.newsSentiment && <NewsSentimentCard sentiment={ipo.newsSentiment} />}
+            {isPending ? (
+                <Skeleton className="h-56 w-full" />
+            ) : (
+                ipo.newsSentiment && <NewsSentimentCard sentiment={ipo.newsSentiment} />
+            )}
 
             <KeyMetricsCard ipo={ipo} />
             
@@ -148,20 +157,20 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
         </div>
 
         {/* Sidebar Info */}
-        <div className="flex flex-col gap-6">
+        <div className="lg:sticky top-24 flex flex-col gap-6">
             <Card className="bg-gradient-to-br from-primary/90 to-primary text-primary-foreground">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">AI Prediction</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-6">
-                    {isPending ? <Skeleton className="w-[140px] h-[140px] rounded-full" /> : <PredictionGauge value={ipo.predictionScore} size={140} strokeWidth={12} />}
+                    {isPending ? <Skeleton className="w-[140px] h-[140px] rounded-full bg-white/20" /> : <PredictionGauge value={ipo.predictionScore} size={140} strokeWidth={12} />}
                     <div className="w-full grid grid-cols-2 gap-4 text-center">
                         <div>
-                          {isPending ? <Skeleton className="h-7 w-20 mx-auto" /> : <p className="text-2xl font-bold">{ipo.successProbability}%</p>}
+                          {isPending ? <Skeleton className="h-7 w-20 mx-auto bg-white/20" /> : <p className="text-2xl font-bold">{ipo.successProbability}%</p>}
                           <p className="text-sm opacity-80">Success Probability</p>
                         </div>
                          <div>
-                            {isPending ? <Skeleton className="h-7 w-20 mx-auto" /> : <p className="text-2xl font-bold">{ipo.expectedReturn.toFixed(1)}%</p>}
+                            {isPending ? <Skeleton className="h-7 w-20 mx-auto bg-white/20" /> : <p className="text-2xl font-bold">{ipo.expectedReturn.toFixed(1)}%</p>}
                             <p className="text-sm opacity-80">Expected Return</p>
                         </div>
                     </div>

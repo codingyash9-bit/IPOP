@@ -19,7 +19,7 @@ type IpoCardProps = {
 
 export function IpoCard({ ipo }: IpoCardProps) {
   return (
-    <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1">
+    <Card className="flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 ease-in-out duration-200">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div>

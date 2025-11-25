@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { RefreshCw, Upload } from 'lucide-react';
 import { handleUpdateData } from './actions';
 import { useState, useRef } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE;
 const SECRET_TOKEN = process.env.NEXT_PUBLIC_BACKEND_TOKEN;
@@ -56,17 +57,21 @@ export default function SettingsPage() {
 
   const onSync = async () => {
     setIsSyncing(true);
-    try {
-      const result = await handleUpdateData();
+    toast({
+      title: 'Syncing Data...',
+      description: 'Fetching the latest IPO information.',
+    });
+    const result = await handleUpdateData();
+    if (result.success) {
       toast({
         title: 'Data Synced',
-        description: `Successfully synced ${result.count} IPOs.`,
+        description: result.message,
       });
-    } catch (error: any) {
+    } else {
       toast({
         variant: 'destructive',
         title: 'Sync Failed',
-        description: error.message || 'An unknown error occurred.',
+        description: result.message,
       });
     }
     setIsSyncing(false);
@@ -109,10 +114,18 @@ export default function SettingsPage() {
   
   if (authLoading) {
      return (
-       <div className="p-8 space-y-8">
-         <div className="h-96 w-full animate-pulse rounded-lg bg-muted" />
-         <div className="h-64 w-full animate-pulse rounded-lg bg-muted" />
-       </div>
+       <AppShell>
+        <div className="space-y-8">
+            <div className="space-y-2">
+                <Skeleton className="h-9 w-1/4" />
+                <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
+                <Skeleton className="h-56" />
+                <Skeleton className="h-56" />
+            </div>
+        </div>
+       </AppShell>
      );
   }
 
@@ -151,7 +164,7 @@ export default function SettingsPage() {
                     <CardTitle>Prospectus Parser</CardTitle>
                     <CardDescription>
                         Upload a Red Herring Prospectus (RHP) to automatically extract key IPO details.
-                    </Description>
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid w-full max-w-sm items-center gap-1.5">
