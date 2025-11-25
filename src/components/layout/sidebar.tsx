@@ -10,10 +10,11 @@ import {
 import { SidebarLogo } from '../icons';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Home, Settings, LineChart } from 'lucide-react';
+import { Home, Settings, LineChart, BrainCircuit } from 'lucide-react';
 
 const menuItems = [
   { href: '/', label: 'Dashboard', icon: Home },
+  { href: '/strategies', label: 'Strategies', icon: BrainCircuit },
   { href: '/analysis', label: 'Monitoring', icon: LineChart },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
