@@ -14,8 +14,8 @@ export function PredictionGauge({
   const offset = circumference - (value / 100) * circumference;
 
   const getStrokeColor = () => {
-    if (value >= 75) return 'hsl(var(--primary))'; // Purple
-    if (value >= 50) return 'hsl(var(--chart-4))'; // Yellow
+    if (value >= 75) return 'hsl(var(--chart-1))'; // Golden Yellow for high scores
+    if (value >= 50) return 'hsl(var(--chart-3))'; // An orange/amber shade
     return 'hsl(var(--destructive))'; // Red
   };
 
