@@ -2,57 +2,60 @@ import { getApps, initializeApp, cert, App } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
-// A variable to hold the initialized app instance.
-let adminApp: App | null = null;
-let adminProjectId: string | undefined = undefined;
+let adminApp: App;
+let adminProjectId: string | undefined;
 
-function initializeAdminApp() {
+// This function initializes the Firebase Admin SDK.
+// It's designed to be idempotent (it only initializes once).
+function initializeAdmin() {
   if (getApps().length > 0) {
     adminApp = getApps()[0]!;
-    // Attempt to get project ID from the already initialized app
-    adminProjectId = (adminApp.options.credential as any)?.projectId || process.env.GCLOUD_PROJECT || undefined;
+    adminProjectId = (adminApp.options.credential as any)?.projectId || process.env.GCLOUD_PROJECT;
     return;
   }
 
-  // In a real GCP environment, service account credentials can be auto-discovered.
-  // For local development, you'd use a service account file.
-  // IMPORTANT: Do NOT commit service account keys to your repository.
+  // In a deployed Google Cloud environment (like App Hosting or Cloud Functions),
+  // the SDK can auto-discover credentials.
   try {
-    // For GCP environments (like Cloud Functions, Cloud Run)
-    // This relies on Application Default Credentials.
+    console.log("Attempting to initialize Firebase Admin with Application Default Credentials...");
     adminApp = initializeApp();
     adminProjectId = process.env.GCLOUD_PROJECT;
-  } catch (e) {
-    console.warn("Could not auto-initialize Firebase Admin. Are you in a GCP environment? Falling back to service account key if available.");
+    console.log("Firebase Admin initialized successfully with ADC.");
+  } catch (e: any) {
+    console.warn(`Admin SDK ADC initialization failed: ${e.message}. Falling back to service account key.`);
     
+    // For local development, it falls back to a service account key file.
     if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-      adminApp = initializeApp({
-        credential: cert(serviceAccount)
-      });
-      adminProjectId = serviceAccount.project_id;
+      try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        adminApp = initializeApp({
+          credential: cert(serviceAccount)
+        });
+        adminProjectId = serviceAccount.project_id;
+        console.log("Firebase Admin initialized successfully with service account key.");
+      } catch (keyError: any) {
+         console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY.", keyError);
+         throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is set but could not be parsed. Initialization failed.");
+      }
     } else {
-      throw new Error("Firebase Admin SDK initialization failed. No credentials found. Ensure FIREBASE_SERVICE_ACCOUNT_KEY is set in your environment.");
+      throw new Error("Firebase Admin SDK initialization failed. No ADC or service account key found.");
     }
   }
 }
 
-// Initialize on module load.
-initializeAdminApp();
+// Call the initialization function when this module is first loaded.
+initializeAdmin();
 
-function getFirebaseAdmin() {
+// This is the function that other server-side modules will import.
+export function getFirebaseAdmin() {
   if (!adminApp) {
-    throw new Error("Firebase Admin SDK has not been initialized.");
+    // This should theoretically not be reached if the module-level initialization works.
+    throw new Error("Firebase Admin SDK has not been initialized. Something went wrong.");
   }
-  if (!adminProjectId) {
-      console.warn("Could not determine project ID from Firebase Admin SDK.");
-  }
-
+  
   return {
     db: getFirestore(adminApp),
     auth: getAuth(adminApp),
     projectId: adminProjectId,
   };
 }
-
-export { getFirebaseAdmin };

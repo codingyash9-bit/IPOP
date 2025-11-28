@@ -6,14 +6,14 @@
 // We are aliasing the 'firebase-functions' import to 'functions' for clarity.
 // This is a common convention in Firebase Cloud Functions development.
 import * as functions from 'firebase-functions';
-import { initializeApp } from 'firebase-admin/app';
 import { updateIpoDataLogic } from './updateIpoDataLogic';
 import { stripeWebhookHandler } from './stripe';
+import { getFirebaseAdmin } from '@/firebase/admin';
 
-// Initialize the Firebase Admin SDK.
-// This is done once when the function instance is created.
-// It allows the function to have secure, admin-level access to Firebase services.
-initializeApp();
+// Initialize the Firebase Admin SDK. This is done here to ensure it's
+// initialized once per function instance in the correct Cloud Functions environment.
+getFirebaseAdmin();
+
 
 /**
  * A scheduled Cloud Function that runs every 6 hours to synchronize IPO data.
