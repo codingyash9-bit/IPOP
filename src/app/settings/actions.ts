@@ -10,8 +10,12 @@ export async function handleUpdateData() {
         return { success: false, message: result.message };
     }
   } catch (err: any) {
-    console.error(err);
+    console.error('Error in handleUpdateData server action:', err);
     const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-    return { success: false, message: `This is a demo. The backend returned: "${errorMessage}"` };
+    // Provide a more specific error message if it's the token issue
+    if (errorMessage.includes('could not refresh access token')) {
+         return { success: false, message: 'Authentication with AI service failed. Please check server permissions.' };
+    }
+    return { success: false, message: `The backend process failed: "${errorMessage}"` };
   }
 }
