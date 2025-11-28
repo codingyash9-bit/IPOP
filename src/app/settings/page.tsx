@@ -8,17 +8,18 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, Database, Server } from 'lucide-react';
-import { parseProspectusAction, seedDatabaseAction } from './actions';
+import { Upload, Database } from 'lucide-react';
+import { parseProspectusAction } from './actions';
 import { useState, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useFirestore } from '@/firebase';
+import { seedDatabase } from '@/lib/seed-db';
 
 export default function SettingsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -26,6 +27,7 @@ export default function SettingsPage() {
   const [isSeeding, setIsSeeding] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const firestore = useFirestore();
 
   const onParseProspectus = async () => {
     const file = fileInputRef.current?.files?.[0];
@@ -86,7 +88,7 @@ export default function SettingsPage() {
       description: 'Populating the Firestore database with the latest IPO data.',
     });
 
-    const result = await seedDatabaseAction();
+    const result = await seedDatabase(firestore);
 
     if (result.success) {
       toast({
@@ -167,9 +169,6 @@ export default function SettingsPage() {
                         {isSeeding ? 'Seeding...' : 'Seed Database'}
                     </Button>
                 </CardContent>
-                 <CardFooter className="text-xs text-muted-foreground">
-                    Note: This will overwrite any existing IPO data in your database.
-                </CardFooter>
             </Card>
         </div>
       </div>

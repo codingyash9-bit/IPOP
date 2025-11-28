@@ -2,8 +2,6 @@
 'use server';
 
 import { parseProspectus } from "@/ai/flows/parse-prospectus-flow";
-import { ipos } from "@/lib/ipo-data";
-import { getFirebaseAdmin } from "@/firebase/admin";
 
 export async function parseProspectusAction(prospectusDataUri: string): Promise<{ success: boolean; data?: any; message: string; }> {
     console.log('[Server Action] "parseProspectusAction" invoked.');
@@ -34,30 +32,3 @@ export async function parseProspectusAction(prospectusDataUri: string): Promise<
         return { success: false, message: `Parsing failed: ${errorMessage}` };
   }
 }
-
-export async function seedDatabaseAction(): Promise<{ success: boolean; message: string; }> {
-    console.log('[Server Action] "seedDatabaseAction" invoked.');
-    
-    // Use the admin SDK for a privileged, server-side write operation.
-    const { db } = getFirebaseAdmin();
-    const batch = db.batch();
-    const iposCollectionRef = db.collection('ipos');
-
-    ipos.forEach((ipo) => {
-        const docRef = iposCollectionRef.doc(ipo.id);
-        batch.set(docRef, ipo);
-    });
-
-    try {
-        await batch.commit();
-        const message = `Successfully seeded ${ipos.length} IPOs to the database.`;
-        console.log(`[Server Action] ${message}`);
-        return { success: true, message: message };
-    } catch (error) {
-        console.error('[Server Action] CRITICAL FAILURE in "seedDatabaseAction":', error);
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during database seeding.';
-        return { success: false, message: `Database seeding failed: ${errorMessage}` };
-    }
-}
-
-    
