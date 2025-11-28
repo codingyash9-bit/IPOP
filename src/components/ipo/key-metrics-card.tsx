@@ -17,7 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { Bar, BarChart, Cell, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, Cell, LabelList, XAxis, YAxis } from 'recharts';
 import { useEffect, useState } from 'react';
 
 type KeyMetricsCardProps = {
@@ -126,10 +126,10 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
               <BarChart
                 accessibilityLayer
                 data={subscriptionData}
-                layout="horizontal"
-                margin={{ left: 10, top: 10, right: 10, bottom: 10 }}
+                layout="vertical"
+                margin={{ left: 10, top: 10, right: 40, bottom: 10 }}
               >
-                <YAxis dataKey="name" type="category" tick={false} hide />
+                <YAxis dataKey="name" type="category" tickLine={false} tick={{fill: 'hsl(var(--foreground))'}} axisLine={false} width={40} />
                 <XAxis dataKey="value" type="number" hide />
                 <ChartTooltip
                   cursor={false}
@@ -137,8 +137,9 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
                 />
                 <Bar dataKey="value" name="Subscription" radius={5} barSize={24}>
                    {subscriptionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={`hsl(${entry.fill})`} />
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
+                    <LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} formatter={(value: number) => `${value.toFixed(1)}x`} />
                 </Bar>
               </BarChart>
             </ChartContainer>
