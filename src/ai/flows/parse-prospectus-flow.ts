@@ -3,32 +3,11 @@
  * @fileOverview A flow to parse a prospectus PDF and extract key IPO details.
  *
  * - parseProspectus - A function that parses a prospectus PDF.
- * - ProspectusInput - The input type for the parseProspectus function.
- * - ProspectusOutput - The return type for the parseProspectus function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { ProspectusInput, ProspectusInputSchema, ProspectusOutput, ProspectusOutputSchema } from './parse-prospectus-types';
 
-export const ProspectusInputSchema = z.object({
-  prospectusDataUri: z
-    .string()
-    .describe(
-      "A PDF file of the prospectus, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:application/pdf;base64,<encoded_data>'."
-    ),
-});
-export type ProspectusInput = z.infer<typeof ProspectusInputSchema>;
-
-export const ProspectusOutputSchema = z.object({
-  companyName: z.string().describe('The name of the company.'),
-  symbol: z.string().describe('The proposed stock ticker symbol.'),
-  priceRange: z.array(z.number()).length(2).describe('The lower and upper bounds of the IPO price range.'),
-  sharesOffered: z.number().describe('The total number of shares being offered.'),
-  revenueTtm: z.number().describe('The Trailing Twelve Months (TTM) revenue.'),
-  profitMargin: z.number().describe('The net profit margin as a percentage.'),
-  debtToEquity: z.number().describe('The total debt to equity ratio.'),
-});
-export type ProspectusOutput = z.infer<typeof ProspectusOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'prospectusParserPrompt',
