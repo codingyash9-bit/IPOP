@@ -59,21 +59,30 @@ export const stripeWebhookHandler = async (req: functions.https.Request, res: fu
  * This is where we provision the "pro" role for a new subscriber.
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-    const { db } = getFirebaseAdmin();
+    const { auth } = getFirebaseAdmin();
     const firebaseUid = session.client_reference_id;
-    const stripeCustomerId = session.customer;
+    const stripeCustomerId = session.customer as string;
 
-    if (!firebaseUid || !stripeCustomerId) {
-        console.error('Missing firebaseUid or stripeCustomerId in checkout session.', session.id);
+    if (!firebaseUid) {
+        console.error('Missing firebaseUid in checkout session.', session.id);
+        return;
+    }
+    
+    if (!stripeCustomerId) {
+        console.error('Missing stripeCustomerId in checkout session.', session.id);
         return;
     }
 
-    const userRef = db.collection('users').doc(firebaseUid);
-    
     try {
+        // Set custom claim for 'pro' status
+        await auth.setCustomUserClaims(firebaseUid, { pro: true });
+        
+        // Also update the user document in Firestore
+        const { db } = getFirebaseAdmin();
+        const userRef = db.collection('users').doc(firebaseUid);
         await userRef.set({
-            proStatus: true,
             stripeCustomerId: stripeCustomerId,
+            proStatus: true // Keep this for easier client-side checks
         }, { merge: true });
 
         console.log(`Successfully granted pro access to user ${firebaseUid}`);
@@ -87,7 +96,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
  * This ensures that when a user cancels their subscription, their "pro" role is revoked.
  */
 async function handleSubscriptionChange(subscription: Stripe.Subscription) {
-    const { db } = getFirebaseAdmin();
+    const { auth, db } = getFirebaseAdmin();
     const stripeCustomerId = subscription.customer as string;
 
     const userQuery = db.collection('users').where('stripeCustomerId', '==', stripeCustomerId).limit(1);
@@ -100,11 +109,16 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
         }
 
         const userDoc = userSnapshot.docs[0];
+        const firebaseUid = userDoc.id;
         const proStatus = subscription.status === 'active' || subscription.status === 'trialing';
-
+        
+        // Update custom claim
+        await auth.setCustomUserClaims(firebaseUid, { pro: proStatus });
+        
+        // Update Firestore document
         await userDoc.ref.update({ proStatus: proStatus });
 
-        console.log(`Subscription status for ${userDoc.id} updated to ${proStatus}`);
+        console.log(`Subscription status for ${firebaseUid} updated to ${proStatus}`);
     } catch (error) {
         console.error(`Failed to handle subscription change for customer ${stripeCustomerId}:`, error);
     }

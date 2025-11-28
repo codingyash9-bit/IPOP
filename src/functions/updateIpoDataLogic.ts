@@ -9,6 +9,7 @@ import { getFirebaseAdmin } from '@/firebase/admin';
 import { generateIpoPrediction } from '@/ai/flows/generate-ipo-prediction';
 import { getThirdPartyIPOList } from './thirdPartyApi';
 import type { Ipo } from '@/lib/types';
+import * as functions from 'firebase-functions';
 
 
 /**
@@ -126,4 +127,3 @@ export async function updateIpoDataLogic() {
     throw new functions.https.HttpsError('internal', `An error occurred: ${error.message}`);
   }
 }
-
