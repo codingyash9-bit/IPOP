@@ -8,6 +8,7 @@
 import * as functions from 'firebase-functions';
 import { initializeApp } from 'firebase-admin/app';
 import { updateIpoDataLogic } from './updateIpoDataLogic';
+import { stripeWebhookHandler } from './stripe';
 
 // Initialize the Firebase Admin SDK.
 // This is done once when the function instance is created.
@@ -49,3 +50,11 @@ export const scheduledFetchIPOs = functions
     // A scheduled function should return null or a Promise that resolves to null.
     return null;
   });
+
+/**
+ * An HTTP-triggered Cloud Function to handle webhooks from Stripe.
+ *
+ * This function creates a public URL that Stripe can send events to.
+ * The logic for handling these events is in `src/functions/stripe.ts`.
+ */
+export const stripeWebhook = functions.https.onRequest(stripeWebhookHandler);
