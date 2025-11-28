@@ -9,7 +9,6 @@ import { getFirebaseAdmin } from '@/firebase/admin';
 import { generateIpoPrediction } from '@/ai/flows/generate-ipo-prediction';
 import { getThirdPartyIPOList } from './thirdPartyApi';
 import type { Ipo } from '@/lib/types';
-import * as functions from 'firebase-functions';
 
 
 /**
@@ -123,7 +122,7 @@ export async function updateIpoDataLogic() {
 
   } catch (error: any) {
     console.error('Failed to update IPO data in server-side logic:', error);
-    // Re-throw the error to be caught by the calling function (e.g., the .onRun handler).
-    throw new functions.https.HttpsError('internal', `An error occurred: ${error.message}`);
+    // Re-throw a standard error to be caught by the calling server action.
+    throw new Error(`An error occurred: ${error.message}`);
   }
 }
