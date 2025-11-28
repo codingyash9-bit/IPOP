@@ -3,7 +3,7 @@
 // to populate your initial database.
 
 import { collection, writeBatch, Firestore, doc } from 'firebase/firestore';
-import { initialIpos } from './initial-ipo-data'; // We'll create this file next
+import { ipos } from './ipo-data'; // Corrected to use the full IPO data source
 
 /**
  * Seeds the Firestore database with the initial set of IPO data.
@@ -15,7 +15,7 @@ export async function seedDatabase(db: Firestore) {
 
   console.log('Starting to seed database from client...');
 
-  initialIpos.forEach((ipo) => {
+  ipos.forEach((ipo) => {
     // For client-side, we explicitly create a document reference with the desired ID
     const docRef = doc(iposCollectionRef, ipo.id);
     batch.set(docRef, ipo);
@@ -23,8 +23,8 @@ export async function seedDatabase(db: Firestore) {
 
   try {
     await batch.commit();
-    console.log(`Successfully seeded ${initialIpos.length} IPOs.`);
-    return { success: true, message: `Successfully seeded ${initialIpos.length} IPOs.` };
+    console.log(`Successfully seeded ${ipos.length} IPOs.`);
+    return { success: true, message: `Successfully seeded ${ipos.length} IPOs.` };
   } catch (error) {
     console.error('Error seeding database from client:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
