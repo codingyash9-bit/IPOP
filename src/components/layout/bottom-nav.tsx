@@ -20,8 +20,10 @@ export function BottomNav() {
   if (!user) return null;
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border shadow-t">
-      <div className="grid h-16 grid-cols-4 max-w-md mx-auto">
+    // Removed md:hidden to make it visible on all screen sizes
+    // Centering the content within the nav bar for better desktop appearance
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border shadow-t">
+      <div className="grid h-16 grid-cols-4 max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive =
             (item.href === '/' && pathname === '/') ||
@@ -31,7 +33,7 @@ export function BottomNav() {
             <Link key={item.href} href={item.href} className="flex-1">
               <div
                 className={cn(
-                  'flex flex-col items-center justify-center h-full gap-1 p-2 text-muted-foreground transition-colors',
+                  'flex flex-col items-center justify-center h-full gap-1 p-2 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-primary',
                   isActive && 'text-primary'
                 )}
               >
