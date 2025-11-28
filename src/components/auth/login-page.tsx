@@ -8,10 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/icons';
-import { useState } from 'react';
 
 function GoogleIcon() {
   return (
@@ -27,10 +24,6 @@ function GoogleIcon() {
 export function LoginPage() {
   const { login, isLoading } = useAuth();
   
-  // Demo credentials are no longer needed with anonymous login
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
-
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background">
       <Card className="mx-auto max-w-sm w-full">
