@@ -1,3 +1,4 @@
+
 'use client';
 import { useAuth } from '@/hooks/use-auth';
 import { LoginPage } from '@/components/auth/login-page';
@@ -21,36 +22,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore } from '@/firebase';
 import { seedDatabase } from '@/lib/seed-db';
 
-const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE;
-const SECRET_TOKEN = process.env.NEXT_PUBLIC_BACKEND_TOKEN;
-
-// This function now calls your real backend endpoint.
-export async function handleParseProspectus(file: File) {
-  if (!BACKEND_BASE) {
-    return { success: false, message: 'Backend service is not configured.' };
-  }
-  
-  const formData = new FormData();
-  formData.append("file", file, file.name);
-
-  try {
-    const res = await fetch(`${BACKEND_BASE}/parse/`, {
-      method: "POST",
-      headers: {
-        "x-internal-token": SECRET_TOKEN || ''
-      },
-      body: formData,
-    });
-    const j = await res.json();
-    if (!res.ok) throw new Error(j.detail || "Parse failed");
-    return { success: true, message: `Successfully parsed ${file.name}.`, parsed: j.parsed };
-  } catch (err: any) {
-     console.error(err);
-     return { success: false, message: err.message || "Parse failed" };
-  }
-}
-
-
 export default function SettingsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const firestore = useFirestore();
@@ -64,12 +35,14 @@ export default function SettingsPage() {
     setIsSyncing(true);
     toast({
       title: 'Syncing Data...',
-      description: 'Checking for new IPOs and updating data.',
+      description: 'Checking for new IPOs and updating data. This may take up to a minute.',
     });
+    
     const result = await handleUpdateData();
+    
     if (result.success) {
       toast({
-        title: 'Data Synced',
+        title: 'Data Sync Complete',
         description: result.message,
       });
     } else {
@@ -83,38 +56,11 @@ export default function SettingsPage() {
   };
   
   const onParseProspectus = async () => {
-    if (!fileInputRef.current?.files?.length) {
-      toast({
-        variant: 'destructive',
-        title: 'No File Selected',
-        description: 'Please select a prospectus PDF file to parse.',
-      });
-      return;
-    }
-    
-    const file = fileInputRef.current.files[0];
-    setIsParsing(true);
     toast({
-        title: 'Parsing Prospectus...',
-        description: `Uploading and processing ${file.name}.`,
+        variant: 'destructive',
+        title: 'Feature Not Implemented',
+        description: 'Automatic prospectus parsing requires a dedicated document processing backend and is not available in this demo.',
     });
-
-    const result = await handleParseProspectus(file);
-
-    if (result.success) {
-        toast({
-            title: 'Parsing Complete',
-            description: result.message,
-        });
-        console.log('Parsed Data:', result.parsed);
-    } else {
-        toast({
-            variant: 'destructive',
-            title: 'Parsing Failed',
-            description: result.message,
-        });
-    }
-    setIsParsing(false);
   }
 
   const onSeed = async () => {
@@ -123,7 +69,6 @@ export default function SettingsPage() {
       title: 'Seeding Database...',
       description: 'Populating Firestore with initial IPO data. This may take a moment.',
     });
-    // The logic is now client-side
     const result = await seedDatabase(firestore);
     if (result.success) {
       toast({
@@ -197,11 +142,11 @@ export default function SettingsPage() {
                 <CardContent className="space-y-4">
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                         <Label htmlFor="prospectus-file">PDF Document</Label>
-                        <Input id="prospectus-file" type="file" accept=".pdf" ref={fileInputRef} />
+                        <Input id="prospectus-file" type="file" accept=".pdf" ref={fileInputRef} disabled />
                     </div>
-                    <Button onClick={onParseProspectus} disabled={isParsing}>
+                    <Button onClick={onParseProspectus} disabled={isParsing || true}>
                         <Upload className={`mr-2 h-4 w-4 ${isParsing ? 'animate-spin' : ''}`} />
-                        {isParsing ? 'Parsing...' : 'Upload & Parse'}
+                        {isParsing ? 'Parsing...' : 'Upload & Parse (Disabled)'}
                     </Button>
                 </CardContent>
             </Card>
@@ -210,7 +155,7 @@ export default function SettingsPage() {
                 <CardHeader>
                     <CardTitle>Automation in Production</CardTitle>
                     <CardDescription>
-                        In a production environment, the data sync process is fully automated using scheduled Cloud Functions.
+                        In a production environment, the data sync process would typically be automated using scheduled jobs.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm text-muted-foreground">
@@ -218,20 +163,20 @@ export default function SettingsPage() {
                         <Clock className="w-5 h-5 mt-1 text-primary" />
                         <div>
                             <h4 className="font-semibold text-foreground">Scheduled Sync</h4>
-                            <p>A Cloud Function (`scheduledFetchIPOs`) runs on a 6-hour schedule to fetch data from financial APIs, find new IPOs, and trigger their analysis.</p>
+                            <p>For a production app, you would configure a cron job (e.g., using Google Cloud Scheduler) to trigger this sync action periodically, ensuring the IPO data is always fresh.</p>
                         </div>
                     </div>
                      <div className="flex items-start gap-4">
                         <Server className="w-5 h-5 mt-1 text-primary" />
                         <div>
                             <h4 className="font-semibold text-foreground">Real-time Updates</h4>
-                            <p>The frontend is connected to Firestore with a real-time listener (`onSnapshot`), so any updates made by the backend are instantly reflected in the app without needing a page refresh.</p>
+                            <p>The frontend is connected to Firestore with a real-time listener (`useCollection`), so any updates made by the backend are instantly reflected in the app without needing a page refresh.</p>
                         </div>
                     </div>
                 </CardContent>
                  <CardFooter>
-                    <a href="https://firebase.google.com/docs/functions/schedule-functions" target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline">Read the Docs</Button>
+                    <a href="https://console.cloud.google.com/cloudscheduler" target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline">Go to Cloud Scheduler</Button>
                     </a>
                 </CardFooter>
             </Card>
