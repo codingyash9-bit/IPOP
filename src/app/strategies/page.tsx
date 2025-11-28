@@ -6,13 +6,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, BrainCircuit, Bot, AreaChart, Zap, ArrowRight, Wallet, TrendingUp as TrendingUpIcon, TrendingDown as TrendingDownIcon, Target } from 'lucide-react';
+import { Plus, Trash2, BrainCircuit, Bot, AreaChart, Zap, ArrowRight, Wallet, TrendingUp as TrendingUpIcon, TrendingDown as TrendingDownIcon, Target, Lock } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Area, AreaChart as RechartsAreaChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { runBacktest, type BacktestOutput } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { createStripeCheckoutSession } from '../actions/stripe';
 
 type Rule = {
   id: string;
@@ -50,8 +51,44 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 
+function UpgradeToProCard() {
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
+
+    const handleUpgradeClick = () => {
+        startTransition(async () => {
+            const result = await createStripeCheckoutSession();
+            if (result.error) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: result.error,
+                });
+            }
+        });
+    };
+
+    return (
+        <Card className="w-full max-w-lg mx-auto">
+            <CardHeader className="text-center">
+                <Lock className="w-12 h-12 mx-auto text-primary"/>
+                <CardTitle className="mt-4">Unlock the Strategy Backtester</CardTitle>
+                <CardDescription>This is a Pro feature. Upgrade your account to design and test custom trading strategies.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button onClick={handleUpgradeClick} disabled={isPending} size="lg" className="w-full group bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:shadow-lg transition-shadow">
+                    <Zap className="mr-2 text-yellow-300"/> 
+                    {isPending ? "Redirecting..." : "Upgrade to Pro"}
+                    <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"/>
+                </Button>
+            </CardContent>
+        </Card>
+    )
+}
+
+
 export default function StrategiesPage() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [rules, setRules] = useState<Rule[]>(INITIAL_RULES);
   const [backtestResult, setBacktestResult] = useState<BacktestOutput | null>(null);
   const [backtestChartData, setBacktestChartData] = useState<any[]>([]);
@@ -123,6 +160,24 @@ export default function StrategiesPage() {
     return <LoginPage />;
   }
 
+  if (!user?.isPro) {
+      return (
+          <AppShell>
+              <header className="mb-8">
+                <h1 className="text-3xl font-bold font-headline tracking-tight">
+                    Strategy Backtester
+                </h1>
+                <p className="text-muted-foreground">
+                    Design and test your IPO trading strategies using our AI-powered engine.
+                </p>
+            </header>
+            <div className="flex items-center justify-center">
+              <UpgradeToProCard />
+            </div>
+          </AppShell>
+      )
+  }
+
   return (
     <AppShell>
       <div className="flex flex-col gap-8">
@@ -169,12 +224,6 @@ export default function StrategiesPage() {
                                 {isBacktestRunning ? 'Running Backtest...' : 'Run Backtest'}
                             </Button>
                         </div>
-                    </div>
-                     <div className="mt-6">
-                        <Button variant="default" size="lg" className="w-full group bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:shadow-lg transition-shadow">
-                            <Zap className="mr-2 text-yellow-300"/> Upgrade to Pro for More Advanced Rules
-                            <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"/>
-                        </Button>
                     </div>
                 </CardContent>
             </Card>

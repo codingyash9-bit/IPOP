@@ -1,9 +1,10 @@
 'use client';
 
 import React, { createContext, useState, useContext, useMemo, useEffect } from 'react';
-import { useAuthService, useUser } from '@/firebase';
+import { useAuthService, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { signInAnonymously, signOut } from 'firebase/auth';
-import type { User } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
+import { doc } from 'firebase/firestore';
 
 // Define the shape of our custom user object
 type AuthUser = {
@@ -11,6 +12,7 @@ type AuthUser = {
   name: string;
   email: string;
   avatarUrl: string;
+  isPro: boolean;
 };
 
 type AuthContextType = {
@@ -23,34 +25,39 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// This function maps the Firebase User object to our app-specific AuthUser object
-const mapFirebaseUserToAuthUser = (firebaseUser: User): AuthUser => ({
+const mapFirebaseUserToAuthUser = (firebaseUser: FirebaseUser, proStatus: boolean = false): AuthUser => ({
     uid: firebaseUser.uid,
     name: firebaseUser.isAnonymous ? 'Anonymous User' : firebaseUser.displayName || 'User',
     email: firebaseUser.email || 'anonymous@example.com',
     avatarUrl: firebaseUser.photoURL || `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
+    isPro: proStatus,
 });
 
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const auth = useAuthService(); // Get the Firebase Auth instance
-  const { user: firebaseUser, isUserLoading: isFirebaseUserLoading } = useUser(); // Get the Firebase user state
+  const auth = useAuthService();
+  const firestore = useFirestore();
+  const { user: firebaseUser, isUserLoading: isFirebaseUserLoading } = useUser();
+  
+  const userDocRef = useMemoFirebase(() => firebaseUser ? doc(firestore, 'users', firebaseUser.uid) : null, [firestore, firebaseUser]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc(userDocRef);
+
   const [appUser, setAppUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
     if (firebaseUser) {
-      setAppUser(mapFirebaseUserToAuthUser(firebaseUser));
+      const proStatus = (userProfile as { proStatus?: boolean })?.proStatus ?? false;
+      setAppUser(mapFirebaseUserToAuthUser(firebaseUser, proStatus));
     } else {
       setAppUser(null);
     }
-  }, [firebaseUser]);
+  }, [firebaseUser, userProfile]);
 
   const isAuthenticated = !!firebaseUser;
 
   const login = async () => {
     try {
       await signInAnonymously(auth);
-      // onAuthStateChanged in FirebaseProvider will handle the rest
     } catch (error) {
       console.error("Anonymous sign-in failed", error);
     }
@@ -70,9 +77,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       login,
       logout,
       user: appUser,
-      isLoading: isFirebaseUserLoading,
+      isLoading: isFirebaseUserLoading || (isAuthenticated && isProfileLoading),
     }),
-    [isAuthenticated, isFirebaseUserLoading, appUser, login, logout]
+    [isAuthenticated, isFirebaseUserLoading, isProfileLoading, appUser, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
