@@ -14,4 +14,11 @@ export const ai = genkit({
     }),
   ],
   model: 'googleai/gemini-2.5-flash',
+  // Register a custom Handlebars helper to stringify JSON objects in prompts.
+  // This fixes the "unknown helper: jsonStringify" error.
+  prompt: {
+    helpers: {
+      jsonStringify: (value: any) => JSON.stringify(value),
+    },
+  },
 });
