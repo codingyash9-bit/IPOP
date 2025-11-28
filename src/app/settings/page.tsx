@@ -7,13 +7,14 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Database, RefreshCw, Upload } from 'lucide-react';
+import { Database, RefreshCw, Upload, Clock, Server } from 'lucide-react';
 import { handleUpdateData } from './actions';
 import { useState, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -63,7 +64,7 @@ export default function SettingsPage() {
     setIsSyncing(true);
     toast({
       title: 'Syncing Data...',
-      description: 'Fetching the latest IPO information.',
+      description: 'Checking for new IPOs and updating data.',
     });
     const result = await handleUpdateData();
     if (result.success) {
@@ -172,18 +173,18 @@ export default function SettingsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
             <Card>
-            <CardHeader>
-                <CardTitle>Data Management</CardTitle>
-                <CardDescription>
-                In a production environment, this system would automatically sync with market data sources every 6 hours, adding new IPOs and recalculating predictions. You can trigger a sync manually here for demonstration.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Button onClick={onSync} disabled={isSyncing}>
-                <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                {isSyncing ? 'Syncing...' : 'Sync IPO Data Manually'}
-                </Button>
-            </CardContent>
+                <CardHeader>
+                    <CardTitle>Manual Data Sync</CardTitle>
+                    <CardDescription>
+                       Manually trigger the backend process to check for new IPOs from our data provider and run the AI analysis.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button onClick={onSync} disabled={isSyncing}>
+                    <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                    {isSyncing ? 'Syncing...' : 'Sync IPO Data Manually'}
+                    </Button>
+                </CardContent>
             </Card>
 
             <Card>
@@ -204,6 +205,37 @@ export default function SettingsPage() {
                     </Button>
                 </CardContent>
             </Card>
+
+            <Card className="md:col-span-2">
+                <CardHeader>
+                    <CardTitle>Automation in Production</CardTitle>
+                    <CardDescription>
+                        In a production environment, the data sync process is fully automated using scheduled Cloud Functions.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm text-muted-foreground">
+                    <div className="flex items-start gap-4">
+                        <Clock className="w-5 h-5 mt-1 text-primary" />
+                        <div>
+                            <h4 className="font-semibold text-foreground">Scheduled Sync</h4>
+                            <p>A Cloud Function (`scheduledFetchIPOs`) runs on a 6-hour schedule to fetch data from financial APIs, find new IPOs, and trigger their analysis.</p>
+                        </div>
+                    </div>
+                     <div className="flex items-start gap-4">
+                        <Server className="w-5 h-5 mt-1 text-primary" />
+                        <div>
+                            <h4 className="font-semibold text-foreground">Real-time Updates</h4>
+                            <p>The frontend is connected to Firestore with a real-time listener (`onSnapshot`), so any updates made by the backend are instantly reflected in the app without needing a page refresh.</p>
+                        </div>
+                    </div>
+                </CardContent>
+                 <CardFooter>
+                    <a href="https://firebase.google.com/docs/functions/schedule-functions" target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline">Read the Docs</Button>
+                    </a>
+                </CardFooter>
+            </Card>
+
 
              <Card className="md:col-span-2">
                 <CardHeader>
