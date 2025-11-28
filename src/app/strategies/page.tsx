@@ -137,7 +137,7 @@ export default function StrategiesPage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <Card className="sticky top-24">
+            <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BrainCircuit className="text-primary"/> Define Your Strategy</CardTitle>
                     <CardDescription>Create rules to define your custom trading logic.</CardDescription>
