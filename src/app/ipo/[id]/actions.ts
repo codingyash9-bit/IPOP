@@ -1,16 +1,22 @@
 'use server';
 
 import { generateIpoPrediction } from '@/ai/flows/generate-ipo-prediction';
-import { ipos } from '@/lib/ipo-data';
+import { getFirebaseAdmin } from '@/firebase/admin';
 import type { Ipo } from '@/lib/types';
+import { doc, getDoc } from 'firebase/firestore';
+
 
 export async function runPrediction(ipoId: string): Promise<Partial<Ipo> | { error: string }> {
-  const ipo = ipos.find((i) => i.id === ipoId);
-  if (!ipo) {
-    return { error: 'IPO not found' };
-  }
+  const { db } = getFirebaseAdmin();
+  const ipoRef = doc(db, 'ipos', ipoId);
 
   try {
+    const ipoDoc = await getDoc(ipoRef);
+    if (!ipoDoc.exists()) {
+      return { error: 'IPO not found' };
+    }
+    const ipo = ipoDoc.data() as Ipo;
+
     // In a real app, you'd pull fresh data here.
     // For this demo, we use mock data from the IPO object to call the flows.
     const predictionInput = {

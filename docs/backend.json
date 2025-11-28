@@ -6,187 +6,84 @@
       "type": "object",
       "description": "Represents an upcoming Initial Public Offering.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the IPO entity."
+        "id": { "type": "string", "description": "Unique identifier for the IPO entity." },
+        "companyName": { "type": "string", "description": "Name of the company going public." },
+        "symbol": { "type": "string", "description": "Ticker symbol for the stock." },
+        "logoUrl": { "type": "string", "description": "URL for the company's logo." },
+        "market": { "type": "string", "description": "The stock exchange where the IPO will be listed." },
+        "ipoDate": { "type": "string", "format": "date-time", "description": "Scheduled date of the IPO." },
+        "priceRange": { "type": "array", "items": { "type": "number" }, "description": "Expected price range for the IPO shares." },
+        "sharesOffered": { "type": "number", "description": "Number of shares being offered." },
+        "dealSize": { "type": "number", "description": "Total value of the IPO offering." },
+        "description": { "type": "string", "description": "A brief description of the company." },
+        "industry": { "type": "string", "description": "The industry sector the company belongs to." },
+        "predictionScore": { "type": "number", "description": "AI-driven score for potential performance." },
+        "successProbability": { "type": "number", "description": "AI-calculated probability of success." },
+        "expectedReturn": { "type": "number", "description": "AI-calculated expected percentage return." },
+        "shapExplanations": { "type": "object", "additionalProperties": { "type": "number" }, "description": "SHAP values explaining the prediction." },
+        "naturalLanguageExplanation": { "type": "string", "description": "A human-readable summary of the AI analysis." },
+        "newsSentiment": {
+          "type": "object",
+          "properties": {
+            "aggregatedScore": { "type": "number" },
+            "positiveHeadlines": { "type": "array", "items": { "type": "object", "properties": { "source": { "type": "string" }, "title": { "type": "string" } } } },
+            "negativeHeadlines": { "type": "array", "items": { "type": "object", "properties": { "source": { "type": "string" }, "title": { "type": "string" } } } }
+          }
         },
-        "companyName": {
-          "type": "string",
-          "description": "Name of the company going public."
-        },
-        "tickerSymbol": {
-          "type": "string",
-          "description": "Ticker symbol assigned to the company's stock."
-        },
-        "expectedIPOPrice": {
-          "type": "number",
-          "description": "The expected price range for the IPO shares."
-        },
-        "ipoDate": {
-          "type": "string",
-          "description": "The date when the IPO is scheduled to occur.",
-          "format": "date-time"
-        },
-        "exchange": {
-          "type": "string",
-          "description": "The stock exchange where the IPO will be listed."
-        },
-        "status": {
-          "type": "string",
-          "description": "Current status of the IPO (e.g., 'Upcoming', 'Priced', 'Withdrawn')."
-        },
-        "predictionScore": {
-          "type": "number",
-          "description": "AI-driven score indicating the IPO's potential performance."
-        },
-        "probability": {
-          "type": "number",
-          "description": "Probability percentage of the IPO being successful, calculated by the AI model."
-        },
-        "expectedReturn": {
-          "type": "number",
-          "description": "Expected percentage return based on the AI's analysis."
-        }
+        "promoterHoldingPost": { "type": "number" },
+        "revenueTtm": { "type": "number" },
+        "profitMargin": { "type": "number" },
+        "roe": { "type": "number" },
+        "debtToEquity": { "type": "number" },
+        "qibSubscription": { "type": "number" },
+        "niiSubscription": { "type": "number" },
+        "retailSubscription": { "type": "number" },
+        "gmp": { "type": "number" }
       },
-      "required": [
-        "id",
-        "companyName",
-        "tickerSymbol",
-        "expectedIPOPrice",
-        "ipoDate",
-        "exchange",
-        "status",
-        "predictionScore",
-        "probability",
-        "expectedReturn"
-      ]
+      "required": ["id", "companyName", "symbol", "ipoDate", "predictionScore"]
     },
     "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user of the application. Note: Does not store authentication credentials.",
+      "description": "Represents a user of the application.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the user entity. This ID is the user's Firebase UID."
-        },
-        "email": {
-          "type": "string",
-          "description": "User's email address.",
-          "format": "email"
-        },
-        "displayName": {
-          "type": "string",
-          "description": "User's display name."
-        },
-        "photoURL": {
-          "type": "string",
-          "description": "URL of the user's profile picture.",
-          "format": "uri"
-        }
+        "id": { "type": "string", "description": "Unique identifier for the user (Firebase UID)." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "displayName": { "type": "string", "description": "User's display name." },
+        "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." }
       },
-      "required": [
-        "id",
-        "email"
-      ]
+      "required": ["id", "email"]
     },
     "SavedStrategy": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "SavedStrategy",
       "type": "object",
-      "description": "Represents a user's saved IPO strategy.",
+      "description": "Represents a user's saved IPO investment strategy.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the saved strategy."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N SavedStrategy). ID of the user who saved the strategy."
-        },
-        "ipoId": {
-          "type": "string",
-          "description": "Reference to IPO. (Relationship: IPO 1:N SavedStrategy). ID of the IPO associated with the strategy."
-        },
-        "strategyName": {
-          "type": "string",
-          "description": "Name given to the saved strategy by the user."
-        },
-        "notes": {
-          "type": "string",
-          "description": "User's notes or comments about the strategy."
-        }
+        "id": { "type": "string", "description": "Unique identifier for the saved strategy." },
+        "userId": { "type": "string", "description": "ID of the user who owns the strategy." },
+        "strategyName": { "type": "string", "description": "Name given to the strategy." },
+        "rules": { "type": "array", "items": { "type": "object" }, "description": "The set of rules that define the strategy." }
       },
-      "required": [
-        "id",
-        "userId",
-        "ipoId",
-        "strategyName"
-      ]
+      "required": ["id", "userId", "strategyName"]
+    }
+  },
+  "firestore": {
+    "/ipos/{ipoId}": {
+      "schema": { "$ref": "#/entities/IPO" },
+      "description": "Collection of all IPO documents. Publicly readable."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Collection of user profile documents. Only accessible by the owner."
+    },
+    "/users/{userId}/savedStrategies/{strategyId}": {
+      "schema": { "$ref": "#/entities/SavedStrategy" },
+      "description": "Sub-collection of strategies saved by a specific user."
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
-  },
-  "firestore": {
-    "structure": [
-      {
-        "path": "/ipos/{ipoId}",
-        "definition": {
-          "entityName": "IPO",
-          "schema": {
-            "$ref": "#/backend/entities/IPO"
-          },
-          "description": "Collection of IPOs.  Accessible to all users, but create/update restricted to authorized roles.",
-          "params": [
-            {
-              "name": "ipoId",
-              "description": "Unique identifier for the IPO."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Collection of user profiles.  Accessible only to the authenticated user.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user (Firebase UID)."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/savedStrategies/{strategyId}",
-        "definition": {
-          "entityName": "SavedStrategy",
-          "schema": {
-            "$ref": "#/backend/entities/SavedStrategy"
-          },
-          "description": "Subcollection of saved strategies for each user. Includes denormalized 'userId' for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user (Firebase UID)."
-            },
-            {
-              "name": "strategyId",
-              "description": "Unique identifier for the saved strategy."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore data structure is designed to support the IPOP application, focusing on IPO listings, user accounts, saved strategies, and AI-driven predictions. It prioritizes authorization independence, clarity, and scalability. \n\n**Authorization Independence (CRITICAL):** The structure avoids hierarchical authorization dependencies (`get()`). User ownership is explicitly defined through path-based ownership and denormalization of `userId` in the `/users/{userId}/savedStrategies/{strategyId}` collection. This ensures that authorization checks can be performed independently without needing to retrieve parent document data, simplifying security rules and enabling atomic operations.\n\n**Clarity of Intent (Debuggability):** The structure is designed to make authorization intent explicit. Ownership is clearly defined through path-based structures for user-related data. \n\n**DBAC (No Custom Claims):** Authorization relies solely on `request.auth.uid`. User roles or permissions are not stored as custom claims.\n\n**QAPs (Rules are not Filters):** The structure enables secure `list` operations. Segregation of data based on ownership (`/users/{userId}/savedStrategies/{strategyId}`) ensures that listing operations can be secured using simple rules based on the request's authentication UID. Only the strategies of the logged-in user can be retrieved.\n\n**Invariants:** The structure supports the integrity of ownership by enforcing path-based ownership where applicable. Timestamps can be added within the IPO or SavedStrategy entities to track creation and modification times.\n\n**Strategy A (Denormalization):**  `userId` is included in the `savedStrategies` collection to ensure authorization independence.  The `userId` allows rules to validate if `request.auth.uid == resource.data.userId`.\n\n**Strategy B (Structural Segregation):** User-specific data (saved strategies) are segregated into user-specific subcollections (`/users/{userId}/savedStrategies/{strategyId}`), ensuring that each collection has a homogeneous security posture.\n\n**Strategy C (Access Modeling):**\n    *   Private User Data: `/users/{userId}` uses path-based ownership.\n    *   User-Owned Data: `/users/{userId}/savedStrategies/{strategyId}` uses a hierarchical path, ensuring that only the authenticated user can access their saved strategies.\n\n\nThis structure adheres to the core design principles of authorization independence, clarity, and scalability, making it suitable for the IPOP application."
+    "providers": ["password", "google.com"]
   }
 }

@@ -1,8 +1,7 @@
 'use client';
-import { ipos as initialIpos } from '@/lib/ipo-data';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { ArrowLeft, Briefcase, Calendar, Info, BarChart2, DollarSign, Tag, TrendingUp, TrendingDown, Percent, Sparkles, FileText } from 'lucide-react';
+import { ArrowLeft, Briefcase, Calendar, Info, BarChart2, DollarSign, Tag, Sparkles, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 import { ShapChart } from './shap-chart';
@@ -15,14 +14,19 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 import { KeyMetricsCard } from './key-metrics-card';
 import { NewsSentimentCard } from './news-sentiment-card';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 type IpoDetailsProps = {
   ipoId: string;
 };
 
 export function IpoDetails({ ipoId }: IpoDetailsProps) {
-  const initialIpo = initialIpos.find((i) => i.id === ipoId);
-  const [ipo, setIpo] = useState<Ipo | undefined>(initialIpo);
+  const firestore = useFirestore();
+  const ipoDocRef = useMemoFirebase(() => doc(firestore, 'ipos', ipoId), [firestore, ipoId]);
+  
+  const { data: ipo, isLoading: isIpoLoading, error: ipoError } = useDoc<Ipo>(ipoDocRef);
+  
   const [clientReady, setClientReady] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -46,7 +50,8 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
           description: result.error,
         });
       } else {
-        setIpo({ ...ipo, ...result });
+        // Update the document in Firestore
+        await setDoc(ipoDocRef, { ...ipo, ...result }, { merge: true });
         toast({
           title: 'Prediction Updated',
           description: `New AI analysis for ${ipo.companyName} is complete.`,
@@ -55,11 +60,39 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
     });
   };
 
-  if (!ipo) {
+  if (isIpoLoading) {
+     return (
+       <div className="p-8">
+          <Skeleton className="h-10 w-48 mb-8" />
+          <div className="flex items-center gap-4 mb-8">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-56 w-full" />
+              <Skeleton className="h-80 w-full" />
+            </div>
+            <div className="space-y-6">
+              <Skeleton className="h-64 w-full" />
+              <Skeleton className="h-48 w-full" />
+            </div>
+          </div>
+        </div>
+     )
+  }
+
+  if (!ipo || ipoError) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center">
         <h2 className="text-2xl font-bold">IPO Not Found</h2>
-        <p className="text-muted-foreground">The IPO you are looking for does not exist.</p>
+        <p className="text-muted-foreground">The IPO you are looking for does not exist or there was an error loading it.</p>
+        {ipoError && <p className="text-sm text-destructive mt-2">{ipoError.message}</p>}
         <Button asChild className="mt-4">
           <Link href="/">Back to Dashboard</Link>
         </Button>
@@ -157,7 +190,7 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
         </div>
 
         {/* Sidebar Info */}
-        <div className="lg:sticky top-24 flex flex-col gap-6">
+        <div className="lg:sticky top-24 flex flex-col gap-6 h-fit">
             <Card className="bg-gradient-to-br from-primary/90 to-primary text-primary-foreground">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">AI Prediction</CardTitle>

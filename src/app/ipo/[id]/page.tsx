@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { IpoDetails } from '@/components/ipo/ipo-details';
 import { Skeleton } from '@/components/ui/skeleton';
 import { use } from 'react';
+import { FirebaseClientProvider } from '@/firebase';
 
 export default function IpoDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { isAuthenticated, isLoading } = useAuth();
