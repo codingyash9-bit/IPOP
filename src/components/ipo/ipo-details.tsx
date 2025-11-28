@@ -15,7 +15,7 @@ import { Skeleton } from '../ui/skeleton';
 import { KeyMetricsCard } from './key-metrics-card';
 import { NewsSentimentCard } from './news-sentiment-card';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 
 type IpoDetailsProps = {
   ipoId: string;
@@ -43,19 +43,19 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
         description: `The AI is generating a new prediction for ${ipo.companyName}.`,
       });
       const result = await runPrediction(ipoId);
-      if ('error' in result) {
+      if (!result.success) {
         toast({
           variant: 'destructive',
           title: 'Prediction Failed',
-          description: result.error,
+          description: result.message,
         });
       } else {
         toast({
           title: 'Prediction Updated',
           description: `New AI analysis for ${ipo.companyName} is complete.`,
         });
-        // No need to manually setDoc here, as the server action now updates Firestore
-        // and the onSnapshot listener in useDoc will automatically update the UI.
+        // No need to manually set data here. The 'useDoc' hook will automatically
+        // receive the update from Firestore and re-render the component.
       }
     });
   };
