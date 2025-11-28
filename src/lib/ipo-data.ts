@@ -86,7 +86,7 @@ export const ipos: Ipo[] = [
     qibSubscription: 140.0,
     niiSubscription: 90.0,
     retailSubscription: 30.0,
-gmp: 35,
+    gmp: 35,
   },
   {
     id: 'emmvee-photovoltaic',

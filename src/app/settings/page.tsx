@@ -1,3 +1,4 @@
+
 'use client';
 import { useAuth } from '@/hooks/use-auth';
 import { LoginPage } from '@/components/auth/login-page';
@@ -14,14 +15,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Upload, Clock, Server } from 'lucide-react';
-import { parseProspectusAction } from './actions';
+import { Upload, Database, Server } from 'lucide-react';
+import { parseProspectusAction, seedDatabaseAction } from './actions';
 import { useState, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function SettingsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isParsing, setIsParsing] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,6 +78,30 @@ export default function SettingsPage() {
         setIsParsing(false);
     }
   };
+
+  const onSeedDatabase = async () => {
+    setIsSeeding(true);
+    toast({
+      title: 'Seeding Database...',
+      description: 'Populating the Firestore database with the latest IPO data.',
+    });
+
+    const result = await seedDatabaseAction();
+
+    if (result.success) {
+      toast({
+        title: 'Database Seeding Successful',
+        description: result.message,
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Database Seeding Failed',
+        description: result.message,
+      });
+    }
+    setIsSeeding(false);
+  };
   
   if (authLoading) {
      return (
@@ -128,33 +154,21 @@ export default function SettingsPage() {
                 </CardContent>
             </Card>
 
-            <Card className="md:col-span-2">
+            <Card>
                 <CardHeader>
-                    <CardTitle>Automation in Production</CardTitle>
+                    <CardTitle>Database Management</CardTitle>
                     <CardDescription>
-                        In a production environment, data ingestion and sync processes would typically be automated using scheduled jobs.
+                        Use this to populate your Firestore database with the complete set of sample IPO data.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4 text-sm text-muted-foreground">
-                    <div className="flex items-start gap-4">
-                        <Clock className="w-5 h-5 mt-1 text-primary" />
-                        <div>
-                            <h4 className="font-semibold text-foreground">Scheduled Sync</h4>
-                            <p>For a production app, you would configure a cron job (e.g., using Google Cloud Scheduler) to trigger a data sync action periodically, ensuring the IPO data is always fresh.</p>
-                        </div>
-                    </div>
-                     <div className="flex items-start gap-4">
-                        <Server className="w-5 h-5 mt-1 text-primary" />
-                        <div>
-                            <h4 className="font-semibold text-foreground">Real-time Updates</h4>
-                            <p>The frontend is connected to Firestore with a real-time listener (`useCollection`), so any updates made by the backend are instantly reflected in the app without needing a page refresh.</p>
-                        </div>
-                    </div>
+                <CardContent>
+                     <Button onClick={onSeedDatabase} disabled={isSeeding}>
+                        <Database className={`mr-2 h-4 w-4 ${isSeeding ? 'animate-spin' : ''}`} />
+                        {isSeeding ? 'Seeding...' : 'Seed Database'}
+                    </Button>
                 </CardContent>
-                 <CardFooter>
-                    <a href="https://console.cloud.google.com/cloudscheduler" target="_blank" rel="noopener noreferrer">
-                        <Button variant="outline">Go to Cloud Scheduler</Button>
-                    </a>
+                 <CardFooter className="text-xs text-muted-foreground">
+                    Note: This will overwrite any existing IPO data in your database.
                 </CardFooter>
             </Card>
         </div>
@@ -162,3 +176,5 @@ export default function SettingsPage() {
     </AppShell>
   );
 }
+
+    
