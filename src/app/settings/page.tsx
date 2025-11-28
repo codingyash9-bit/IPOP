@@ -14,9 +14,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Database, RefreshCw, Upload } from 'lucide-react';
-import { handleUpdateData, handleSeedDatabase } from './actions';
+import { handleUpdateData } from './actions';
 import { useState, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useFirestore } from '@/firebase';
+import { seedDatabase } from '@/lib/seed-db';
 
 const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_BASE;
 const SECRET_TOKEN = process.env.NEXT_PUBLIC_BACKEND_TOKEN;
@@ -50,6 +52,7 @@ export async function handleParseProspectus(file: File) {
 
 export default function SettingsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const firestore = useFirestore();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
@@ -119,7 +122,8 @@ export default function SettingsPage() {
       title: 'Seeding Database...',
       description: 'Populating Firestore with initial IPO data. This may take a moment.',
     });
-    const result = await handleSeedDatabase();
+    // The logic is now client-side
+    const result = await seedDatabase(firestore);
     if (result.success) {
       toast({
         title: 'Database Seeded',

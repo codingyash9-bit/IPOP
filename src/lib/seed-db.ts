@@ -1,37 +1,33 @@
 // IMPORTANT: This is a placeholder for a one-time database seeding script.
 // In a real application, you would run a script like this from a secure server environment
 // to populate your initial database.
-//
-// To use this in development:
-// 1. You could create a temporary page or a server action that calls `seedDatabase`.
-// 2. Ensure you are authenticated with sufficient permissions before running.
-// 3. REMOVE or disable the script for production builds.
 
-import { collection, writeBatch, Firestore } from 'firebase/firestore';
+import { collection, writeBatch, Firestore, doc } from 'firebase/firestore';
 import { initialIpos } from './initial-ipo-data'; // We'll create this file next
 
 /**
  * Seeds the Firestore database with the initial set of IPO data.
- * @param {Firestore} db The Firestore database instance.
+ * @param {Firestore} db The Firestore database instance from the client.
  */
 export async function seedDatabase(db: Firestore) {
-  const iposCollection = collection(db, 'ipos');
+  const iposCollectionRef = collection(db, 'ipos');
   const batch = writeBatch(db);
 
-  console.log('Starting to seed database...');
+  console.log('Starting to seed database from client...');
 
   initialIpos.forEach((ipo) => {
-    // Firestore can generate the ID if you use addDoc, but since our mock data has IDs, we'll use them.
-    const docRef = collection(iposCollection, ipo.id);
+    // For client-side, we explicitly create a document reference with the desired ID
+    const docRef = doc(iposCollectionRef, ipo.id);
     batch.set(docRef, ipo);
   });
 
   try {
     await batch.commit();
     console.log(`Successfully seeded ${initialIpos.length} IPOs.`);
-    return { success: true, message: `Seeded ${initialIpos.length} IPOs.` };
+    return { success: true, message: `Successfully seeded ${initialIpos.length} IPOs.` };
   } catch (error) {
-    console.error('Error seeding database:', error);
-    return { success: false, message: 'Failed to seed database.' };
+    console.error('Error seeding database from client:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    return { success: false, message: `Failed to seed database: ${errorMessage}` };
   }
 }
