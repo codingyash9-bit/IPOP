@@ -148,7 +148,7 @@ export default function SettingsPage() {
             <CardHeader>
                 <CardTitle>Data Management</CardTitle>
                 <CardDescription>
-                Our system automatically syncs new IPO data and recalculates AI predictions every 6 hours. You can also trigger a manual sync.
+                Our system automatically syncs with market data sources every 6 hours. This process adds newly announced IPOs and recalculates predictions for all existing ones.
                 </CardDescription>
             </CardHeader>
             <CardContent>
