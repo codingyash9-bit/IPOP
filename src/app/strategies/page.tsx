@@ -11,7 +11,7 @@ import { useState, useTransition } from 'react';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Area, AreaChart as RechartsAreaChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { runBacktest } from './actions';
-import type { BacktestOutput } from './actions';
+import type { BacktestOutput } from '@/ai/flows/run-backtest-types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -200,27 +200,29 @@ export default function StrategiesPage() {
                     )}
                      {backtestResult && (
                         <div className="space-y-4">
-                            <div className="h-56 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <RechartsAreaChart data={backtestChartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                                        <defs>
-                                            <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
-                                                <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/>
-                                            </linearGradient>
-                                             <linearGradient id="colorBenchmark" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3}/>
-                                                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
-                                            </linearGradient>
-                                        </defs>
-                                        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={10}/>
-                                        <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={10} tickFormatter={(value) => `₹${Number(value).toLocaleString('en-IN', { notation: 'compact' })}`}/>
-                                        <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
-                                        <Area type="monotone" dataKey="equity" strokeWidth={2} stroke="hsl(var(--chart-1))" fill="url(#colorEquity)" />
-                                        <Area type="monotone" dataKey="benchmark" strokeWidth={2} strokeDasharray="3 3" stroke="hsl(var(--chart-2))" fill="url(#colorBenchmark)" />
-                                    </RechartsAreaChart>
-                                </ResponsiveContainer>
-                            </div>
+                            <ChartContainer config={chartConfig} className="h-56 w-full">
+                                <RechartsAreaChart
+                                    accessibilityLayer
+                                    data={backtestChartData}
+                                    margin={{ top: 5, right: 10, left: -20, bottom: 0 }}
+                                >
+                                    <defs>
+                                        <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
+                                            <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/>
+                                        </linearGradient>
+                                         <linearGradient id="colorBenchmark" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={10}/>
+                                    <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={10} tickFormatter={(value) => `₹${Number(value).toLocaleString('en-IN', { notation: 'compact' })}`}/>
+                                    <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
+                                    <Area type="monotone" dataKey="equity" strokeWidth={2} stroke="hsl(var(--chart-1))" fill="url(#colorEquity)" />
+                                    <Area type="monotone" dataKey="benchmark" strokeWidth={2} strokeDasharray="3 3" stroke="hsl(var(--chart-2))" fill="url(#colorBenchmark)" />
+                                </RechartsAreaChart>
+                            </ChartContainer>
                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <ResultMetricCard title="Total Return" value={`${backtestResult.totalReturn.toFixed(2)}%`} icon={TrendingUpIcon} isPositive={backtestResult.totalReturn > 0} />
                                 <ResultMetricCard title="Final Equity" value={`₹${backtestResult.finalEquity.toLocaleString('en-IN')}`} icon={Wallet} />
@@ -253,5 +255,3 @@ function ResultMetricCard({title, value, icon: Icon, isPositive}: {title: string
         </Card>
     )
 }
-
-    
