@@ -50,12 +50,12 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
           description: result.error,
         });
       } else {
-        // Update the document in Firestore
-        await setDoc(ipoDocRef, { ...ipo, ...result }, { merge: true });
         toast({
           title: 'Prediction Updated',
           description: `New AI analysis for ${ipo.companyName} is complete.`,
         });
+        // No need to manually setDoc here, as the server action now updates Firestore
+        // and the onSnapshot listener in useDoc will automatically update the UI.
       }
     });
   };

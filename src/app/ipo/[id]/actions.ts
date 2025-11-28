@@ -3,36 +3,38 @@
 import { generateIpoPrediction } from '@/ai/flows/generate-ipo-prediction';
 import { getFirebaseAdmin } from '@/firebase/admin';
 import type { Ipo } from '@/lib/types';
-import { doc, getDoc } from 'firebase/firestore';
+import { getDoc } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
+import { getFirestore } from "firebase-admin/firestore";
 
 
 export async function runPrediction(ipoId: string): Promise<Partial<Ipo> | { error: string }> {
+  // Use the admin SDK on the server-side for privileged access
   const { db } = getFirebaseAdmin();
-  const ipoRef = doc(db, 'ipos', ipoId);
+  const ipoRef = db.collection('ipos').doc(ipoId);
 
   try {
-    const ipoDoc = await getDoc(ipoRef);
-    if (!ipoDoc.exists()) {
+    const ipoDoc = await ipoRef.get();
+    if (!ipoDoc.exists) {
       return { error: 'IPO not found' };
     }
     const ipo = ipoDoc.data() as Ipo;
 
-    // In a real app, you'd pull fresh data here.
-    // For this demo, we use mock data from the IPO object to call the flows.
+    // In a real app, you might pull fresh financial data here.
+    // For this demo, we use the existing data from the IPO object to call the flows.
     const predictionInput = {
         ipoDetails: `Company: ${ipo.companyName}, Industry: ${ipo.industry}, Description: ${ipo.description}`,
         marketConditions: 'Current market sentiment is cautiously optimistic, with the index up 5% in the last month.',
         companyFinancials: `TTM Revenue: ${ipo.revenueTtm}, Profit Margin: ${ipo.profitMargin}%, ROE: ${ipo.roe}%, D/E Ratio: ${ipo.debtToEquity}`
     };
     
-    // Simulate a slightly longer AI process
+    // Simulate a slightly longer AI process for better user feedback
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     const result = await generateIpoPrediction(predictionInput);
     
-    // In a real app, you'd save this to a database.
-    // Here, we just return the new data to be updated in the client state.
-    return {
+    // Create the updated data object
+    const updatedData: Partial<Ipo> = {
         predictionScore: result.predictionScore,
         successProbability: result.probabilityOfSuccess,
         expectedReturn: result.expectedReturn,
@@ -40,6 +42,12 @@ export async function runPrediction(ipoId: string): Promise<Partial<Ipo> | { err
         naturalLanguageExplanation: result.naturalLanguageExplanation,
         newsSentiment: result.newsSentiment,
     };
+
+    // Update the document in Firestore using the admin SDK
+    await ipoRef.update(updatedData);
+
+    // Return the new data to the client if needed, though the client will update via snapshot
+    return updatedData;
 
   } catch (error) {
     console.error('Prediction failed:', error);
