@@ -20,9 +20,9 @@ export function UserNav() {
   }
   
   const userInitials = user.name
-    .split(' ')
+    ?.split(' ')
     .map((n) => n[0])
-    .join('');
+    .join('') || 'U';
 
   return (
     <DropdownMenu>

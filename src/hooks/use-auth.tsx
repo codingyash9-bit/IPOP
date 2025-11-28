@@ -1,8 +1,13 @@
 'use client';
 
 import React, { createContext, useState, useContext, useMemo, useEffect } from 'react';
+import { useAuthService, useUser } from '@/firebase';
+import { signInAnonymously, signOut } from 'firebase/auth';
+import type { User } from 'firebase/auth';
 
+// Define the shape of our custom user object
 type AuthUser = {
+  uid: string;
   name: string;
   email: string;
   avatarUrl: string;
@@ -18,35 +23,45 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// This function maps the Firebase User object to our app-specific AuthUser object
+const mapFirebaseUserToAuthUser = (firebaseUser: User): AuthUser => ({
+    uid: firebaseUser.uid,
+    name: firebaseUser.isAnonymous ? 'Anonymous User' : firebaseUser.displayName || 'User',
+    email: firebaseUser.email || 'anonymous@example.com',
+    avatarUrl: firebaseUser.photoURL || `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
+});
+
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const auth = useAuthService(); // Get the Firebase Auth instance
+  const { user: firebaseUser, isUserLoading: isFirebaseUserLoading } = useUser(); // Get the Firebase user state
+  const [appUser, setAppUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    // Simulate checking for an existing session
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-  }, []);
+    if (firebaseUser) {
+      setAppUser(mapFirebaseUserToAuthUser(firebaseUser));
+    } else {
+      setAppUser(null);
+    }
+  }, [firebaseUser]);
 
-  const user = isAuthenticated
-    ? {
-        name: 'Demo User',
-        email: 'demo@ipop.com',
-        avatarUrl: 'https://picsum.photos/seed/user/100/100',
-      }
-    : null;
+  const isAuthenticated = !!firebaseUser;
 
-  const login = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsAuthenticated(true);
-      setIsLoading(false);
-    }, 1000); // Simulate network delay
+  const login = async () => {
+    try {
+      await signInAnonymously(auth);
+      // onAuthStateChanged in FirebaseProvider will handle the rest
+    } catch (error) {
+      console.error("Anonymous sign-in failed", error);
+    }
   };
   
-  const logout = () => {
-    setIsAuthenticated(false);
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Sign-out failed", error);
+    }
   };
 
   const value = useMemo(
@@ -54,10 +69,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isAuthenticated,
       login,
       logout,
-      user,
-      isLoading,
+      user: appUser,
+      isLoading: isFirebaseUserLoading,
     }),
-    [isAuthenticated, isLoading]
+    [isAuthenticated, isFirebaseUserLoading, appUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

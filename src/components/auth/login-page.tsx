@@ -11,8 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/icons';
-import { Github } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 function GoogleIcon() {
   return (
@@ -27,13 +26,10 @@ function GoogleIcon() {
 
 export function LoginPage() {
   const { login, isLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  useEffect(() => {
-    setEmail('demo@ipop.com');
-    setPassword('demopassword');
-  }, []);
+  
+  // Demo credentials are no longer needed with anonymous login
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background">
@@ -44,14 +40,13 @@ export function LoginPage() {
           </div>
           <CardTitle className="text-2xl font-headline">Welcome to IPOP</CardTitle>
           <CardDescription>
-            Enter your credentials to access your dashboard
+            Sign in to access your dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
-            <Button variant="outline" className="w-full" disabled>
-              <GoogleIcon />
-              Sign in with Google
+             <Button onClick={login} className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
+              {isLoading ? 'Signing In...' : 'Sign In as Demo User'}
             </Button>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -59,33 +54,13 @@ export function LoginPage() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-card px-2 text-muted-foreground">
-                  Or continue with
+                  Or sign in with
                 </span>
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled
-              />
-            </div>
-            <Button onClick={login} className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
-              {isLoading ? 'Signing In...' : 'Login as Demo User'}
+             <Button variant="outline" className="w-full" disabled>
+              <GoogleIcon />
+              Sign in with Google
             </Button>
           </div>
         </CardContent>
