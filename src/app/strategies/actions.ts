@@ -1,8 +1,8 @@
 'use server';
 
-import { runBacktest as runBacktestFlow, type BacktestInput } from '@/ai/flows/run-backtest-flow';
+import { runBacktest as runBacktestFlow, type BacktestInput, type BacktestOutput } from '@/ai/flows/run-backtest-flow';
 
-export async function runBacktest(input: BacktestInput) {
+export async function runBacktest(input: BacktestInput): Promise<BacktestOutput | { error: string }> {
     try {
         const result = await runBacktestFlow(input);
         return result;
