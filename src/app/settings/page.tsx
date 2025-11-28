@@ -175,7 +175,7 @@ export default function SettingsPage() {
             <CardHeader>
                 <CardTitle>Data Management</CardTitle>
                 <CardDescription>
-                Our system automatically syncs with market data sources every 6 hours. This process adds newly announced IPOs and recalculates predictions for all existing ones.
+                In a production environment, this system would automatically sync with market data sources every 6 hours, adding new IPOs and recalculating predictions. You can trigger a sync manually here for demonstration.
                 </CardDescription>
             </CardHeader>
             <CardContent>

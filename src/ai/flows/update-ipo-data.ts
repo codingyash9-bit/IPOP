@@ -79,6 +79,8 @@ const updateIpoDataFlow = ai.defineFlow(
       }
 
       // Here you would process and save the new IPO data to your database
+      // e.g. using the Firebase Admin SDK to add/update documents in Firestore.
+      // After updating, you would then trigger the 'refreshAIInsights' flow for each new/updated IPO.
       const message = `Successfully updated IPO data. Found ${simulatedResult.data.length} new IPOs.`;
 
       return {
