@@ -204,14 +204,14 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                         </div>
                          <div>
                             {isPending ? <Skeleton className="h-7 w-20 mx-auto bg-white/20" /> : <p className="text-2xl font-bold">{ipo.expectedReturn.toFixed(1)}%</p>}
-                            <p className="text-sm opacity-80">Expected Return</p>
+                            <p className="text-sm opacity-80">Listing Day Gain</p>
                         </div>
                     </div>
                 </CardContent>
             </Card>
              <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Briefcase className="text-primary"/> Deal Information</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Briefcase className="text-primary"/> Issue Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
                     <div className="flex justify-between items-center">
@@ -220,17 +220,17 @@ export function IpoDetails({ ipoId }: IpoDetailsProps) {
                     </div>
                     <Separator/>
                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground flex items-center gap-2"><DollarSign className="w-4 h-4"/> Price Range</span>
+                        <span className="text-muted-foreground flex items-center gap-2"><DollarSign className="w-4 h-4"/> Price Band</span>
                         <span className="font-medium">₹{ipo.priceRange[0]} - ₹{ipo.priceRange[1]}</span>
                     </div>
                      <Separator/>
                     <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground flex items-center gap-2"><Tag className="w-4 h-4"/> Market</span>
+                        <span className="text-muted-foreground flex items-center gap-2"><Tag className="w-4 h-4"/> Exchange</span>
                         <span className="font-medium">{ipo.market}</span>
                     </div>
                      <Separator/>
                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground flex items-center gap-2"><Briefcase className="w-4 h-4"/> Deal Size</span>
+                        <span className="text-muted-foreground flex items-center gap-2"><Briefcase className="w-4 h-4"/> Issue Size</span>
                         <span className="font-medium">{clientReady ? formatCurrency(ipo.dealSize) : ''}</span>
                     </div>
                 </CardContent>

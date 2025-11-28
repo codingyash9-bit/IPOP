@@ -25,7 +25,7 @@ type KeyMetricsCardProps = {
 };
 
 const formatCompact = (value: number) =>
-  new Intl.NumberFormat('en-US', {
+  new Intl.NumberFormat('en-IN', {
     notation: 'compact',
     compactDisplay: 'short',
   }).format(value);
@@ -80,7 +80,7 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <MetricItem
               label="Revenue (TTM)"
-              value={formatCompact(ipo.revenueTtm)}
+              value={`₹${formatCompact(ipo.revenueTtm)}`}
             />
             <MetricItem
               label="Profit Margin"
@@ -88,7 +88,7 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
               isPositive={ipo.profitMargin >= 0}
             />
             <MetricItem
-              label="Return on Equity"
+              label="Return on Equity (ROE)"
               value={`${ipo.roe.toFixed(1)}%`}
               isPositive={ipo.roe >= 0}
             />
@@ -116,7 +116,7 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
         {/* Subscription Metrics */}
         <div className="space-y-4">
           <h3 className="font-semibold text-lg flex items-center gap-2">
-            <Users /> Subscription (times)
+            <Users /> Subscription (times oversubscribed)
           </h3>
           <div className="w-full h-40">
             <ChartContainer
@@ -146,7 +146,7 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
           </div>
           <div className="grid grid-cols-3 gap-2 text-center text-sm">
               <MetricItem label="QIB" value={`${ipo.qibSubscription.toFixed(1)}x`}/>
-              <MetricItem label="NII" value={`${ipo.niiSubscription.toFixed(1)}x`}/>
+              <MetricItem label="HNI / NII" value={`${ipo.niiSubscription.toFixed(1)}x`}/>
               <MetricItem label="Retail" value={`${ipo.retailSubscription.toFixed(1)}x`}/>
           </div>
         </div>

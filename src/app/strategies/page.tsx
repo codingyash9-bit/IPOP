@@ -17,17 +17,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 type Rule = {
   id: string;
-  metric: 'rsi' | 'moving_average' | 'pe_ratio' | 'gmp';
+  metric: 'qib' | 'gmp' | 'pe_ratio' | 'promoter_holding';
   condition: 'less_than' | 'greater_than';
   value: string;
-  action: 'buy' | 'sell';
+  action: 'buy' | 'avoid';
 };
 
 const METRIC_OPTIONS = {
-  rsi: 'RSI (14-day)',
-  moving_average: '50-day Moving Avg.',
-  pe_ratio: 'P/E Ratio',
+  qib: 'QIB Subscription (times)',
   gmp: 'Grey Market Premium (%)',
+  pe_ratio: 'P/E Ratio',
+  promoter_holding: 'Promoter Holding (%)',
 };
 
 const CONDITION_OPTIONS = {
@@ -36,18 +36,18 @@ const CONDITION_OPTIONS = {
 };
 
 const ACTION_OPTIONS = {
-  buy: 'Buy',
-  sell: 'Sell',
+  buy: 'Apply for IPO',
+  avoid: 'Avoid IPO',
 };
 
 const INITIAL_RULES: Rule[] = [
-    { id: 'rule1', metric: 'rsi', condition: 'less_than', value: '30', action: 'buy' },
-    { id: 'rule2', metric: 'rsi', condition: 'greater_than', value: '70', action: 'sell' },
+    { id: 'rule1', metric: 'gmp', condition: 'greater_than', value: '20', action: 'buy' },
+    { id: 'rule2', metric: 'qib', condition: 'less_than', value: '10', action: 'avoid' },
 ]
 
 const chartConfig = {
     equity: { label: "Strategy", color: "hsl(var(--chart-1))" },
-    benchmark: { label: "Benchmark", color: "hsl(var(--chart-2))" },
+    benchmark: { label: "NIFTY 50", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
 
 
@@ -60,7 +60,7 @@ export default function StrategiesPage() {
   const { toast } = useToast();
 
   const addRule = () => {
-    setRules([...rules, { id: `rule${Date.now()}`, metric: 'rsi', condition: 'less_than', value: '0', action: 'buy' }]);
+    setRules([...rules, { id: `rule${Date.now()}`, metric: 'gmp', condition: 'greater_than', value: '0', action: 'buy' }]);
   };
 
   const removeRule = (id: string) => {
@@ -73,7 +73,7 @@ export default function StrategiesPage() {
   
   const onRunBacktest = () => {
     const formattedRules = rules.reduce((acc, rule) => {
-      acc[rule.id] = `${rule.action.toUpperCase()}: When ${METRIC_OPTIONS[rule.metric]} is ${rule.condition === 'greater_than' ? '>' : '<'} ${rule.value}`;
+      acc[rule.id] = `${ACTION_OPTIONS[rule.action]}: When ${METRIC_OPTIONS[rule.metric]} is ${rule.condition === 'greater_than' ? '>' : '<'} ${rule.value}`;
       return acc;
     }, {} as Record<string, string>);
 
@@ -132,7 +132,7 @@ export default function StrategiesPage() {
             Strategy Backtester
           </h1>
           <p className="text-muted-foreground">
-            Design and test your IPO trading strategies using our AI-powered engine.
+            Design and test your IPO application strategies using our AI-powered engine.
           </p>
         </header>
 
@@ -140,7 +140,7 @@ export default function StrategiesPage() {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><BrainCircuit className="text-primary"/> Define Your Strategy</CardTitle>
-                    <CardDescription>Create rules to define your custom trading logic.</CardDescription>
+                    <CardDescription>Create rules to define your custom IPO selection logic.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
@@ -225,7 +225,7 @@ export default function StrategiesPage() {
                             </ChartContainer>
                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <ResultMetricCard title="Total Return" value={`${backtestResult.totalReturn.toFixed(2)}%`} icon={TrendingUpIcon} isPositive={backtestResult.totalReturn > 0} />
-                                <ResultMetricCard title="Final Equity" value={`₹${backtestResult.finalEquity.toLocaleString('en-IN')}`} icon={Wallet} />
+                                <ResultMetricCard title="Final Capital" value={`₹${backtestResult.finalEquity.toLocaleString('en-IN')}`} icon={Wallet} />
                                 <ResultMetricCard title="Sharpe Ratio" value={backtestResult.sharpeRatio.toFixed(2)} icon={Target} isPositive={backtestResult.sharpeRatio > 1} />
                                 <ResultMetricCard title="Max Drawdown" value={`${backtestResult.maxDrawdown.toFixed(2)}%`} icon={TrendingDownIcon} isPositive={false} />
                             </div>

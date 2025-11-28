@@ -57,7 +57,7 @@ export function IpoCard({ ipo }: IpoCardProps) {
                 </div>
                 <div>
                     <p className={`font-bold text-lg ${ipo.expectedReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>{ipo.expectedReturn.toFixed(1)}%</p>
-                    <p className="text-xs text-muted-foreground">Expected Return</p>
+                    <p className="text-xs text-muted-foreground">Listing Day Gain</p>
                 </div>
             </div>
         </div>

@@ -25,14 +25,14 @@ const dataDriftData = [
     { feature: 'qib_subscription_rate', psi: 0.15, status: 'Warning' },
     { feature: 'sector_return_30d', psi: 0.28, status: 'Alert' },
     { feature: 'revenue_cagr_3y', psi: 0.05, status: 'Normal' },
-    { feature: 'promoter_holding_pct_after', psi: 0.02, status: 'Normal' },
+    { feature: 'promoter_holding_pct_post', psi: 0.02, status: 'Normal' },
 ];
 
 const alertHistory = [
     { id: 1, time: '2025-07-29 10:00', type: 'Data Drift', message: 'High drift detected in `sector_return_30d` (PSI=0.28)', status: 'Alert' },
     { id: 2, time: '2025-07-29 08:00', type: 'Model Retraining', message: 'Model v1.3.1 promoted to production. AUC improved by 3%.', status: 'Info' },
-    { id: 3, time: '2025-07-28 14:00', type: 'Model Performance', message: 'Regression MAE increased by 15% WoW.', status: 'Warning' },
-    { id: 4, time: '2025-07-27 09:00', type: 'Data Ingestion', message: 'Daily data ingestion pipeline failed.', status: 'Alert' },
+    { id: 3, time: '2025-07-28 14:00', type: 'Model Performance', message: 'Listing Day Return MAE increased by 15% WoW.', status: 'Warning' },
+    { id: 4, time: '2025-07-27 09:00', type: 'Data Ingestion', message: 'Daily data ingestion pipeline from API failed.', status: 'Alert' },
 ];
 
 const lastRetraining = {
@@ -119,7 +119,7 @@ export default function MonitoringPage() {
                 <CardContent className="h-40">
                    <ChartContainer config={driftChartConfig} className="h-full w-full">
                         <RechartsBarChart data={dataDriftData} layout="vertical" margin={{ top: 0, right: 20, left: -10, bottom: -10 }}>
-                             <YAxis dataKey="feature" type="category" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} width={140}/>
+                             <YAxis dataKey="feature" type="category" tickLine={false} axisLine={false} tickMargin={8} fontSize={12} width={150}/>
                              <XAxis type="number" domain={[0, 0.4]} hide/>
                             <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="dot" />} />
                             <Bar dataKey="psi" radius={4}>
