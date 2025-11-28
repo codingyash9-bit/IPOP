@@ -2,7 +2,7 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/update-ipo-data.ts';
+import '@/ai/flows/parse-prospectus-flow.ts';
 import '@/ai/flows/calculate-ipo-probability.ts';
 import '@/ai/flows/explain-ipo-prediction-factors.ts';
 import '@/ai/flows/calculate-expected-return.ts';

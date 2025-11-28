@@ -1,4 +1,3 @@
-
 'use client';
 import { useAuth } from '@/hooks/use-auth';
 import { LoginPage } from '@/components/auth/login-page';
@@ -15,8 +14,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Database, RefreshCw, Upload, Clock, Server } from 'lucide-react';
-import { handleUpdateData } from './actions';
+import { Database, Upload, Clock, Server } from 'lucide-react';
+import { parseProspectusAction } from './actions';
 import { useState, useRef } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore } from '@/firebase';
@@ -25,43 +24,62 @@ import { seedDatabase } from '@/lib/seed-db';
 export default function SettingsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const firestore = useFirestore();
-  const [isSyncing, setIsSyncing] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onSync = async () => {
-    setIsSyncing(true);
-    toast({
-      title: 'Syncing Data...',
-      description: 'Checking for new IPOs and updating data. This may take up to a minute.',
-    });
-    
-    const result = await handleUpdateData();
-    
-    if (result.success) {
-      toast({
-        title: 'Data Sync Complete',
-        description: result.message,
-      });
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Sync Failed',
-        description: result.message,
-      });
-    }
-    setIsSyncing(false);
-  };
-  
   const onParseProspectus = async () => {
-    toast({
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      toast({
         variant: 'destructive',
-        title: 'Feature Not Implemented',
-        description: 'Automatic prospectus parsing requires a dedicated document processing backend and is not available in this demo.',
+        title: 'No File Selected',
+        description: 'Please select a PDF prospectus file to parse.',
+      });
+      return;
+    }
+
+    setIsParsing(true);
+    toast({
+      title: 'Parsing Prospectus...',
+      description: `Sending "${file.name}" to the AI for analysis. This may take a moment.`,
     });
-  }
+
+    // Convert file to Data URL
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      const result = await parseProspectusAction(dataUrl);
+
+      if (result.success) {
+        toast({
+          title: 'Parsing Complete',
+          description: (
+            <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+              <code className="text-white">{JSON.stringify(result.data, null, 2)}</code>
+            </pre>
+          ),
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Parsing Failed',
+          description: result.message,
+        });
+      }
+      setIsParsing(false);
+    };
+    reader.onerror = () => {
+        toast({
+            variant: 'destructive',
+            title: 'File Read Error',
+            description: 'Could not read the selected file.',
+        });
+        setIsParsing(false);
+    }
+  };
 
   const onSeed = async () => {
     setIsSeeding(true);
@@ -119,34 +137,19 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
             <Card>
                 <CardHeader>
-                    <CardTitle>Manual Data Sync</CardTitle>
-                    <CardDescription>
-                       Manually trigger the backend process to check for new IPOs from our data provider and run the AI analysis.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button onClick={onSync} disabled={isSyncing}>
-                    <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                    {isSyncing ? 'Syncing...' : 'Sync IPO Data Manually'}
-                    </Button>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
                     <CardTitle>Prospectus Parser</CardTitle>
                     <CardDescription>
-                        Upload a Red Herring Prospectus (RHP) to automatically extract key IPO details.
+                        Upload a Red Herring Prospectus (RHP) to automatically extract key IPO details using AI.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid w-full max-w-sm items-center gap-1.5">
                         <Label htmlFor="prospectus-file">PDF Document</Label>
-                        <Input id="prospectus-file" type="file" accept=".pdf" ref={fileInputRef} disabled />
+                        <Input id="prospectus-file" type="file" accept=".pdf" ref={fileInputRef} disabled={isParsing} />
                     </div>
-                    <Button onClick={onParseProspectus} disabled={isParsing || true}>
+                    <Button onClick={onParseProspectus} disabled={isParsing}>
                         <Upload className={`mr-2 h-4 w-4 ${isParsing ? 'animate-spin' : ''}`} />
-                        {isParsing ? 'Parsing...' : 'Upload & Parse (Disabled)'}
+                        {isParsing ? 'Parsing...' : 'Upload & Parse'}
                     </Button>
                 </CardContent>
             </Card>
@@ -155,7 +158,7 @@ export default function SettingsPage() {
                 <CardHeader>
                     <CardTitle>Automation in Production</CardTitle>
                     <CardDescription>
-                        In a production environment, the data sync process would typically be automated using scheduled jobs.
+                        In a production environment, data ingestion and sync processes would typically be automated using scheduled jobs.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm text-muted-foreground">
@@ -163,7 +166,7 @@ export default function SettingsPage() {
                         <Clock className="w-5 h-5 mt-1 text-primary" />
                         <div>
                             <h4 className="font-semibold text-foreground">Scheduled Sync</h4>
-                            <p>For a production app, you would configure a cron job (e.g., using Google Cloud Scheduler) to trigger this sync action periodically, ensuring the IPO data is always fresh.</p>
+                            <p>For a production app, you would configure a cron job (e.g., using Google Cloud Scheduler) to trigger a data sync action periodically, ensuring the IPO data is always fresh.</p>
                         </div>
                     </div>
                      <div className="flex items-start gap-4">
@@ -180,7 +183,6 @@ export default function SettingsPage() {
                     </a>
                 </CardFooter>
             </Card>
-
 
              <Card className="md:col-span-2">
                 <CardHeader>
