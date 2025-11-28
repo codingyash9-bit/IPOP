@@ -1,6 +1,7 @@
 'use server';
 
-import { runBacktest as runBacktestFlow, type BacktestInput, type BacktestOutput } from '@/ai/flows/run-backtest-flow';
+import { runBacktest as runBacktestFlow } from '@/ai/flows/run-backtest-flow';
+import type { BacktestInput, BacktestOutput } from '@/ai/flows/run-backtest-types';
 
 export async function runBacktest(input: BacktestInput): Promise<BacktestOutput | { error: string }> {
     console.log('[Server Action] Running backtest with input:', input);

@@ -4,35 +4,10 @@
  * @fileOverview A flow to run a simulated financial backtest for a trading strategy.
  *
  * - runBacktestFlow - A function that simulates a backtest.
- * - BacktestInputSchema - The Zod schema for the backtest input.
- * - BacktestOutputSchema - The Zod schema for the backtest output.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-
-// Input schema is a record of human-readable rule descriptions.
-// This is simple and requires no complex object stringification in the prompt.
-export const BacktestInputSchema = z.object({
-  rules: z.record(z.string()).describe("An object representing the trading rules. Keys are rule IDs, values are human-readable rule descriptions."),
-  initialCapital: z.number().describe("The starting capital for the backtest."),
-});
-export type BacktestInput = z.infer<typeof BacktestInputSchema>;
-
-
-const EquityDataPointSchema = z.object({
-  date: z.string().describe("The date for this data point, in 'YYYY-MM-DD' format."),
-  equity: z.number().describe("The total equity value on this date."),
-});
-
-export const BacktestOutputSchema = z.object({
-  finalEquity: z.number().describe("The final equity after the backtest period."),
-  totalReturn: z.number().describe("The total return as a percentage."),
-  sharpeRatio: z.number().describe("The Sharpe ratio of the strategy."),
-  maxDrawdown: z.number().describe("The maximum drawdown percentage."),
-  equitySeries: z.array(EquityDataPointSchema).describe("An array of daily equity values over the backtest period."),
-});
-export type BacktestOutput = z.infer<typeof BacktestOutputSchema>;
+import { BacktestInput, BacktestInputSchema, BacktestOutput, BacktestOutputSchema } from './run-backtest-types';
 
 
 const prompt = ai.definePrompt({
