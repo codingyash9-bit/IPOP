@@ -3,7 +3,7 @@ import { updateIpoData } from "@/ai/flows/update-ipo-data";
 
 export async function handleUpdateData() {
   try {
-    const result = await updateIpoData({apiKey: 'dummy', apiUrl: 'dummy'});
+    const result = await updateIpoData({});
     if (result.success) {
         return { success: true, message: result.message };
     } else {

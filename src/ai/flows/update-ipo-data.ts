@@ -13,6 +13,7 @@ import {z} from 'genkit';
 import { getFirebaseAdmin } from '@/firebase/admin';
 import { generateIpoPrediction } from './generate-ipo-prediction';
 import type { Ipo } from '@/lib/types';
+import { Timestamp } from 'firebase-admin/firestore';
 
 
 const UpdateIpoDataInputSchema = z.object({
@@ -23,6 +24,8 @@ export type UpdateIpoDataInput = z.infer<typeof UpdateIpoDataInputSchema>;
 const UpdateIpoDataOutputSchema = z.object({
   success: z.boolean().describe('Whether the IPO data update was successful.'),
   message: z.string().describe('A message indicating the result of the update.'),
+  newIposAdded: z.number().describe('The number of new IPOs that were added.'),
+  newIpoNames: z.array(z.string()).describe('The names of the new IPOs added.'),
 });
 export type UpdateIpoDataOutput = z.infer<typeof UpdateIpoDataOutputSchema>;
 
@@ -34,9 +37,9 @@ export async function updateIpoData(input: UpdateIpoDataInput): Promise<UpdateIp
 
 // This tool simulates fetching data from an external financial data provider.
 // In production, this would make a real HTTP request.
-const fetchFromFinancialProviderTool = ai.defineTool(
+const getThirdPartyIPOList = ai.defineTool(
   {
-    name: 'fetchFromFinancialProvider',
+    name: 'getThirdPartyIPOList',
     description: 'Simulates fetching a list of upcoming IPOs from a financial data provider.',
     inputSchema: z.object({}),
     outputSchema: z.array(z.object({
@@ -44,7 +47,7 @@ const fetchFromFinancialProviderTool = ai.defineTool(
         companyName: z.string(),
         symbol: z.string(),
         ipoDate: z.string(),
-        // Add other raw fields you'd expect from an API
+        priceRange: z.array(z.number()),
     })),
   },
   async () => {
@@ -53,11 +56,11 @@ const fetchFromFinancialProviderTool = ai.defineTool(
     // We return a mock list that includes existing and new IPOs.
     await new Promise(resolve => setTimeout(resolve, 1000));
     return [
-      { id: 'physicswallah', companyName: 'PhysicsWallah', symbol: 'PW', ipoDate: '2024-11-25' },
-      { id: 'capillary-technologies', companyName: 'Capillary Technologies', symbol: 'CAPTECH', ipoDate: '2024-12-02' },
-      { id: 'ola-electric', companyName: 'Ola Electric', symbol: 'OLAELECT', ipoDate: '2025-02-15' },
+      { id: 'physicswallah', companyName: 'PhysicsWallah', symbol: 'PW', ipoDate: '2024-11-25', priceRange: [450, 475] },
+      { id: 'capillary-technologies', companyName: 'Capillary Technologies', symbol: 'CAPTECH', ipoDate: '2024-12-02', priceRange: [380, 400] },
+      { id: 'ola-electric', companyName: 'Ola Electric', symbol: 'OLAELECT', ipoDate: '2025-02-15', priceRange: [1200, 1250] },
       // This is the NEW IPO that is not yet in our database.
-      { id: 'aurora-innovations', companyName: 'Aurora Innovations', symbol: 'AURORA', ipoDate: '2025-04-10' },
+      { id: 'aurora-innovations', companyName: 'Aurora Innovations', symbol: 'AURORA', ipoDate: '2025-04-10', priceRange: [700, 750] },
     ];
   }
 );
@@ -75,22 +78,31 @@ const updateIpoDataFlow = ai.defineFlow(
 
     try {
       // 1. Fetch current IPO list from the external provider
-      const providerIpos = await fetchFromFinancialProviderTool();
+      const providerIpos = await getThirdPartyIPOList();
       
       // 2. Get the list of IPO IDs we already have in our database
       const existingIposSnapshot = await iposCollection.select('id').get();
       const existingIpoIds = new Set(existingIposSnapshot.docs.map(doc => doc.id));
 
       // 3. Filter out the IPOs that are truly new
-      const newIpos = providerIpos.filter(ipo => !existingIpoIds.has(ipo.id));
+      const newIposFromProvider = providerIpos.filter(ipo => !existingIpoIds.has(ipo.id));
 
-      if (newIpos.length === 0) {
-        return { success: true, message: 'Data is already up-to-date. No new IPOs found.' };
+      if (newIposFromProvider.length === 0) {
+        return { 
+            success: true, 
+            message: 'Data is already up-to-date. No new IPOs found.',
+            newIposAdded: 0,
+            newIpoNames: [],
+        };
       }
 
+      const batch = db.batch();
+      const newIpoNames: string[] = [];
+
       // 4. For each new IPO, enrich it with details and run AI prediction
-      for (const newIpo of newIpos) {
+      for (const newIpo of newIposFromProvider) {
         console.log(`New IPO found: ${newIpo.companyName}. Running analysis...`);
+        newIpoNames.push(newIpo.companyName);
         
         // In a real app, you would fetch more detailed data for the new IPO here.
         // For this demo, we'll use mock data to run the AI flows.
@@ -102,7 +114,7 @@ const updateIpoDataFlow = ai.defineFlow(
 
         const analysisResult = await generateIpoPrediction(predictionInput);
 
-        // 5. Create the full IPO document and save it to Firestore
+        // 5. Create the full IPO document to be saved to Firestore
         const fullIpoDocument: Ipo = {
             id: newIpo.id,
             companyName: newIpo.companyName,
@@ -110,7 +122,7 @@ const updateIpoDataFlow = ai.defineFlow(
             ipoDate: newIpo.ipoDate,
             logoUrl: `https://picsum.photos/seed/${newIpo.id}/100/100`,
             market: 'NSE',
-            priceRange: [500, 550],
+            priceRange: newIpo.priceRange as [number, number],
             sharesOffered: 30000000,
             dealSize: 16500000000,
             description: 'A newly discovered, exciting company preparing for its market debut. Full details are being populated by our AI.',
@@ -127,19 +139,31 @@ const updateIpoDataFlow = ai.defineFlow(
             ...analysisResult,
         };
 
-        // Set the new document in Firestore using its ID
-        await iposCollection.doc(newIpo.id).set(fullIpoDocument);
-        console.log(`Successfully added and analyzed ${newIpo.companyName}.`);
+        // Add the new document to the batch
+        const docRef = iposCollection.doc(newIpo.id);
+        batch.set(docRef, fullIpoDocument);
+        console.log(`Successfully analyzed ${newIpo.companyName}.`);
       }
+      
+      // 6. Commit the batch write to Firestore
+      await batch.commit();
+      console.log(`Batch commit successful. Added ${newIposFromProvider.length} new IPOs.`);
 
-      const message = `Successfully updated IPO data. Added and analyzed ${newIpos.length} new IPO(s).`;
-      return { success: true, message: message };
+      const message = `Successfully updated IPO data. Added and analyzed ${newIposFromProvider.length} new IPO(s): ${newIpoNames.join(', ')}. Predictions were generated.`;
+      return { 
+          success: true, 
+          message: message,
+          newIposAdded: newIposFromProvider.length,
+          newIpoNames: newIpoNames,
+      };
 
     } catch (error: any) {
       console.error('Failed to update IPO data:', error);
       return {
         success: false,
         message: `An error occurred: ${error.message}`,
+        newIposAdded: 0,
+        newIpoNames: [],
       };
     }
   }
