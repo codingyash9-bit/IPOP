@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Ipo } from '@/lib/types';
 import { IpoCard } from './ipo-card';
 import { collection } from 'firebase/firestore';
@@ -8,7 +8,7 @@ import { Skeleton } from '../ui/skeleton';
 
 export function IpoList() {
   const firestore = useFirestore();
-  const iposCollection = collection(firestore, 'ipos');
+  const iposCollection = useMemoFirebase(() => collection(firestore, 'ipos'), [firestore]);
   const { data: ipos, isLoading } = useCollection<Ipo>(iposCollection);
 
   if (isLoading) {
