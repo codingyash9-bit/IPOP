@@ -17,7 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { Bar, BarChart, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, Cell, XAxis, YAxis } from 'recharts';
 import { useEffect, useState } from 'react';
 
 type KeyMetricsCardProps = {
@@ -48,10 +48,19 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
   
   const subscriptionData = [
     {
-      label: 'Subscription',
-      qib: ipo.qibSubscription,
-      nii: ipo.niiSubscription,
-      retail: ipo.retailSubscription,
+      name: 'QIB',
+      value: ipo.qibSubscription,
+      fill: 'var(--color-qib)'
+    },
+     {
+      name: 'NII',
+      value: ipo.niiSubscription,
+      fill: 'var(--color-nii)'
+    },
+     {
+      name: 'Retail',
+      value: ipo.retailSubscription,
+      fill: 'var(--color-retail)'
     },
   ];
 
@@ -96,7 +105,7 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
             </h3>
              <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">Grey Market Premium (GMP)</span>
-                 <Badge variant={ipo.gmp >= 0 ? 'default' : 'destructive'} className="bg-green-600/20 text-green-700 dark:bg-green-500/10 dark:text-green-400 border-none">
+                 <Badge variant={ipo.gmp >= 0 ? 'default' : 'destructive'} className={ipo.gmp >=0 ? 'bg-green-600/20 text-green-700 dark:bg-green-500/10 dark:text-green-400 border-none' : 'bg-red-600/20 text-red-700 dark:bg-red-500/10 dark:text-red-400 border-none'}>
                     {ipo.gmp >= 0 ? <ArrowUp className="mr-1 h-3 w-3"/> : <ArrowDown className="mr-1 h-3 w-3"/>}
                     {ipo.gmp}%
                 </Badge>
@@ -117,22 +126,19 @@ export function KeyMetricsCard({ ipo }: KeyMetricsCardProps) {
               <BarChart
                 accessibilityLayer
                 data={subscriptionData}
-                layout="vertical"
-                margin={{ left: 0, top: 0, right: 20, bottom: 0 }}
+                layout="horizontal"
+                margin={{ left: 10, top: 10, right: 10, bottom: 10 }}
               >
-                <YAxis dataKey="label" type="category" tick={false} hide />
-                <XAxis dataKey="qib" type="number" hide />
+                <YAxis dataKey="name" type="category" tick={false} hide />
+                <XAxis dataKey="value" type="number" hide />
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent indicator="dot" hideLabel />}
+                  content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar dataKey="qib" name="QIB" radius={5} barSize={24}>
-                    <YAxis dataKey="nii" type="category" tick={false} hide />
-                    <XAxis dataKey="nii" type="number" hide />
-                    <Bar dataKey="nii" name="NII" radius={5} barSize={24} />
-                    <YAxis dataKey="retail" type="category" tick={false} hide />
-                    <XAxis dataKey="retail" type="number" hide />
-                    <Bar dataKey="retail" name="Retail" radius={5} barSize={24} />
+                <Bar dataKey="value" name="Subscription" radius={5} barSize={24}>
+                   {subscriptionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={`hsl(${entry.fill})`} />
+                    ))}
                 </Bar>
               </BarChart>
             </ChartContainer>
