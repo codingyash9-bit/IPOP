@@ -5,8 +5,10 @@ import type { Ipo } from '@/lib/types';
 import { IpoCard } from './ipo-card';
 import { collection } from 'firebase/firestore';
 import { Skeleton } from '../ui/skeleton';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Rocket } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 
 export function IpoList() {
   const firestore = useFirestore();
@@ -36,14 +38,7 @@ export function IpoList() {
     return (
       <div className="space-y-8">
         <div>
-          <Skeleton className="h-8 w-48 mb-4" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Skeleton className="h-80 w-full" />
-            <Skeleton className="h-80 w-full" />
-          </div>
-        </div>
-        <div>
-          <Skeleton className="h-8 w-48 mb-4" />
+          <Skeleton className="h-10 w-64 mb-4" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Skeleton className="h-80 w-full" />
             <Skeleton className="h-80 w-full" />
@@ -65,12 +60,13 @@ export function IpoList() {
   }
 
   return (
-    <div className="space-y-12">
-        <section>
-             <h2 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
-                <Rocket className="text-primary"/>
-                Upcoming IPOs
-            </h2>
+    <Tabs defaultValue="upcoming" className="w-full">
+      <TabsList className="grid w-full grid-cols-2 max-w-sm mx-auto">
+        <TabsTrigger value="upcoming">Upcoming IPOs</TabsTrigger>
+        <TabsTrigger value="live">Live & Listed</TabsTrigger>
+      </TabsList>
+      <TabsContent value="upcoming">
+        <div className="mt-6">
             {upcomingIpos.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {upcomingIpos.map((ipo) => (
@@ -78,11 +74,12 @@ export function IpoList() {
                     ))}
                 </div>
             ) : (
-                 <p className="text-muted-foreground">No upcoming IPOs at the moment. Check back soon!</p>
+                 <p className="text-muted-foreground text-center py-8">No upcoming IPOs at the moment. Check back soon!</p>
             )}
-        </section>
-        <section>
-            <h2 className="text-2xl font-bold font-headline mb-4">Live & Recently Listed</h2>
+        </div>
+      </TabsContent>
+      <TabsContent value="live">
+         <div className="mt-6">
              {liveIpos.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {liveIpos.map((ipo) => (
@@ -90,9 +87,10 @@ export function IpoList() {
                     ))}
                 </div>
             ) : (
-                <p className="text-muted-foreground">No recently listed IPOs found.</p>
+                <p className="text-muted-foreground text-center py-8">No recently listed IPOs found.</p>
             )}
-        </section>
-    </div>
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }
