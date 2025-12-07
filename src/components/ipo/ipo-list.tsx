@@ -23,8 +23,8 @@ export function IpoList() {
     // Set time to 00:00:00 to compare dates only, not time
     now.setHours(0, 0, 0, 0);
 
-    const liveIpos = ipos.filter(ipo => new Date(ipo.ipoDate) < now);
-    const upcomingIpos = ipos.filter(ipo => new Date(ipo.ipoDate) >= now);
+    const liveIpos = ipos.filter(ipo => new Date(ipo.ipoDate).getTime() < now.getTime());
+    const upcomingIpos = ipos.filter(ipo => new Date(ipo.ipoDate).getTime() >= now.getTime());
     
     // Sort both lists by date
     liveIpos.sort((a, b) => new Date(b.ipoDate).getTime() - new Date(a.ipoDate).getTime());
