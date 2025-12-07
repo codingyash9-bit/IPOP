@@ -8,42 +8,41 @@ export const ipos: Ipo[] = [
     symbol: 'PW',
     logoUrl: 'https://picsum.photos/seed/pw/100/100',
     market: 'NSE',
-    ipoDate: '2024-11-25',
-    priceRange: [450, 475],
-    sharesOffered: 40000000,
-    dealSize: 18000000000,
-    description: 'A leading ed-tech platform in India, providing affordable and comprehensive learning experiences for students preparing for competitive exams.',
+    ipoDate: '2025-04-10', // Updated Date
+    priceRange: [500, 525], // Revised Range
+    sharesOffered: 38000000,
+    dealSize: 19500000000,
+    description: 'A leading ed-tech platform in India, providing affordable and comprehensive learning experiences for students preparing for competitive exams, now showing strong post-listing performance.',
     industry: 'Ed-Tech',
-    predictionScore: 85,
-    successProbability: 90,
-    expectedReturn: 40.5,
-    naturalLanguageExplanation: "PhysicsWallah's strong brand recognition and impressive user growth are key drivers for its high prediction score. While the competitive market poses a slight risk, its solid profitability makes it a compelling IPO.",
+    predictionScore: 88, // Score revised based on performance
+    successProbability: 92,
+    expectedReturn: 45.0, // Updated return
+    naturalLanguageExplanation: "PhysicsWallah's strong brand recognition and impressive user growth were key drivers for its high prediction score. Post-IPO, the stock has shown significant gains, validating the initial analysis despite a competitive market.",
     shapExplanations: {
-      'Brand Recognition': 0.4,
+      'Brand Recognition': 0.45,
       'Strong User Growth': 0.3,
       'Competitive Market': -0.1,
-      'Profitability': 0.2,
-      'Regulatory Scrutiny': -0.05,
+      'Profitability': 0.25, // Increased weight
     },
     newsSentiment: {
-      aggregatedScore: 0.85,
+      aggregatedScore: 0.9,
       positiveHeadlines: [
-        { source: 'Economic Times', title: 'PhysicsWallah aims for $1B valuation in upcoming IPO' },
-        { source: 'Business Standard', title: 'Ed-tech giant reports 3x growth in user base' }
+        { source: 'Economic Times', title: 'PhysicsWallah makes stellar debut, lists at 50% premium' },
+        { source: 'Business Standard', title: 'Ed-tech giant continues to report strong user base growth post-IPO' }
       ],
       negativeHeadlines: [
-        { source: 'LiveMint', title: 'Analysts raise concerns over high marketing spend' }
+        { source: 'LiveMint', title: 'Analysts watch for sustained profitability in coming quarters' }
       ]
     },
     promoterHoldingPost: 60,
-    revenueTtm: 8000000000,
-    profitMargin: 15.0,
-    roe: 28.0,
-    debtToEquity: 0.2,
-    qibSubscription: 180.0,
-    niiSubscription: 120.0,
-    retailSubscription: 50.0,
-    gmp: 55,
+    revenueTtm: 9500000000,
+    profitMargin: 18.0,
+    roe: 32.0,
+    debtToEquity: 0.15,
+    qibSubscription: 210.0,
+    niiSubscription: 140.0,
+    retailSubscription: 65.0,
+    gmp: 60,
   },
   {
     id: 'capillary-technologies',
@@ -51,42 +50,126 @@ export const ipos: Ipo[] = [
     symbol: 'CAPTECH',
     logoUrl: 'https://picsum.photos/seed/capillary/100/100',
     market: 'BSE',
-    ipoDate: '2024-12-02',
-    priceRange: [380, 400],
-    sharesOffered: 25000000,
-    dealSize: 9750000000,
-    description: 'A global leader in customer loyalty and engagement solutions, helping brands build strong relationships with their customers.',
+    ipoDate: '2025-05-15', // Updated Date
+    priceRange: [410, 430], // Revised Range
+    sharesOffered: 24000000,
+    dealSize: 10100000000,
+    description: 'A global leader in customer loyalty and engagement solutions, demonstrating stable growth and market expansion since its public listing.',
     industry: 'Software as a Service (SaaS)',
-    predictionScore: 78,
-    successProbability: 85,
-    expectedReturn: 28.0,
-    naturalLanguageExplanation: "Capillary Technologies' predictable recurring revenue and established market leadership are strong positive factors. However, investors should note the high valuation and a concentration of revenue from a few large clients as potential risks.",
+    predictionScore: 81, // Revised score
+    successProbability: 88,
+    expectedReturn: 32.5, // Updated return
+    naturalLanguageExplanation: "Capillary Technologies' predictable recurring revenue and market leadership were strong positive factors in its successful IPO. The company is actively mitigating client concentration risk by expanding its customer base.",
     shapExplanations: {
-      'Recurring Revenue Model': 0.35,
+      'Recurring Revenue Model': 0.4,
       'Global Presence': 0.25,
-      'Client Concentration Risk': -0.15,
+      'Client Concentration Risk': -0.1, // Reduced risk
       'High Valuation': -0.1,
-      'Market Leadership': 0.2,
+      'Market Leadership': 0.25,
     },
      newsSentiment: {
-      aggregatedScore: 0.65,
+      aggregatedScore: 0.75,
       positiveHeadlines: [
-        { source: 'VC Circle', title: 'SaaS unicorn Capillary Tech files for IPO' },
-        { source: 'YourStory', title: 'From startup to IPO: The Capillary journey' }
+        { source: 'VC Circle', title: 'Capillary Tech lists at a healthy premium, SaaS story strong' },
+        { source: 'YourStory', title: 'Capillary announces two new enterprise clients post-IPO' }
       ],
       negativeHeadlines: [
-        { source: 'Reuters', title: 'Client concentration a key risk in Capillary IPO' }
+        { source: 'Reuters', title: 'Valuation remains a key metric for investors to watch' }
       ]
     },
     promoterHoldingPost: 65,
-    revenueTtm: 5000000000,
-    profitMargin: 12.5,
-    roe: 20.0,
+    revenueTtm: 6000000000,
+    profitMargin: 14.0,
+    roe: 24.0,
+    debtToEquity: 0.3,
+    qibSubscription: 160.0,
+    niiSubscription: 110.0,
+    retailSubscription: 40.0,
+    gmp: 40,
+  },
+  {
+    id: 'meesho',
+    companyName: 'Meesho',
+    symbol: 'MEESHO',
+    logoUrl: 'https://picsum.photos/seed/meesho/100/100',
+    market: 'NSE',
+    ipoDate: '2025-06-20',
+    priceRange: [480, 500],
+    sharesOffered: 90000000,
+    dealSize: 44100000000,
+    description: 'A pioneering social commerce platform in India, enabling individuals and small businesses to start their online stores via social channels.',
+    industry: 'E-commerce',
+    predictionScore: 79,
+    successProbability: 85,
+    expectedReturn: 30.0,
+    naturalLanguageExplanation: 'Meesho has a massive user base and a unique business model targeting Tier-2 and Tier-3 cities, which is a major strength. However, the path to profitability and high cash burn are significant risks that investors will be scrutinizing.',
+    shapExplanations: {
+      'Large Addressable Market': 0.4,
+      'Asset-Light Model': 0.25,
+      'Path to Profitability': -0.2,
+      'Intense Competition': -0.15,
+      'Strong User Growth': 0.3,
+    },
+    newsSentiment: {
+      aggregatedScore: 0.7,
+      positiveHeadlines: [
+        { source: 'Economic Times', title: 'Meesho narrows losses, prepares for blockbuster IPO' },
+        { source: 'YourStory', title: 'Social commerce giant eyes profitability ahead of public listing' }
+      ],
+      negativeHeadlines: [
+        { source: 'LiveMint', title: 'Competition heats up in social commerce space' }
+      ]
+    },
+    promoterHoldingPost: 35,
+    revenueTtm: 80000000000,
+    profitMargin: -15.0,
+    roe: -35.0,
+    debtToEquity: 0.5,
+    qibSubscription: 150.0,
+    niiSubscription: 120.0,
+    retailSubscription: 55.0,
+    gmp: 38,
+  },
+  {
+    id: 'corona-remedies',
+    companyName: 'Corona Remedies',
+    symbol: 'CORONA',
+    logoUrl: 'https://picsum.photos/seed/corona/100/100',
+    market: 'BSE',
+    ipoDate: '2025-07-05',
+    priceRange: [650, 680],
+    sharesOffered: 18000000,
+    dealSize: 12000000000,
+    description: 'A fast-growing pharmaceutical company with a strong presence in the Indian domestic market, focusing on therapeutic areas like cardiology, diabetes, and gynecology.',
+    industry: 'Pharmaceuticals',
+    predictionScore: 74,
+    successProbability: 80,
+    expectedReturn: 22.0,
+    naturalLanguageExplanation: 'Corona Remedies has shown robust revenue growth and has a strong portfolio of brands in high-growth therapeutic areas. The primary risks are its high dependence on the Indian market and ongoing regulatory scrutiny common to the pharma sector.',
+    shapExplanations: {
+      'Strong Revenue Growth': 0.35,
+      'Brand Portfolio': 0.3,
+      'Domestic Market Dependence': -0.15,
+      'Regulatory Environment': -0.1,
+      'Experienced Management': 0.15,
+    },
+    newsSentiment: {
+      aggregatedScore: 0.6,
+      positiveHeadlines: [
+        { source: 'PharmaBiz', title: 'Corona Remedies files DRHP for ₹1200 crore IPO' },
+        { source: 'MoneyControl', title: 'The pharma company has a strong track record of growth' }
+      ],
+      negativeHeadlines: []
+    },
+    promoterHoldingPost: 78,
+    revenueTtm: 9000000000,
+    profitMargin: 20.0,
+    roe: 25.0,
     debtToEquity: 0.4,
-    qibSubscription: 140.0,
-    niiSubscription: 90.0,
+    qibSubscription: 100.0,
+    niiSubscription: 80.0,
     retailSubscription: 30.0,
-    gmp: 35,
+    gmp: 25,
   },
   {
     id: 'emmvee-photovoltaic',
@@ -369,5 +452,7 @@ export const ipos: Ipo[] = [
     gmp: 30,
   }
 ];
+
+    
 
     
