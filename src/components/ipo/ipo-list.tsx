@@ -19,7 +19,8 @@ export function IpoList() {
       return { liveIpos: [], upcomingIpos: [] };
     }
     const now = new Date();
-    // Set time to 00:00:00 to compare dates only, not time
+    // CRITICAL FIX: Set time to 00:00:00 to compare dates only, not time.
+    // This ensures that an IPO for today's date is considered upcoming until the day is over.
     now.setHours(0, 0, 0, 0);
 
     // This robust date parsing logic ensures that date strings in "YYYY-MM-DD" format
