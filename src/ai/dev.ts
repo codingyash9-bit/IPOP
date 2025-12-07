@@ -11,3 +11,4 @@ import '@/ai/flows/generate-natural-language-explanation.ts';
 import '@/ai/flows/summarize-news-sentiment.ts';
 import '@/ai/flows/run-backtest-flow.ts';
 import '@/ai/flows/parse-prospectus-types.ts';
+import '@/ai/flows/generate-upcoming-ipo-analysis.ts';
