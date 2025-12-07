@@ -22,10 +22,12 @@ export function IpoList() {
     // Set time to 00:00:00 to compare dates only, not time
     now.setHours(0, 0, 0, 0);
 
-    // This logic ensures that date strings are parsed correctly across all browsers
+    // This robust date parsing logic ensures that date strings in "YYYY-MM-DD" format
+    // are parsed correctly across all browsers, avoiding timezone issues.
     const parseDate = (dateString: string) => {
-        const [year, month, day] = dateString.split('-').map(Number);
-        return new Date(year, month - 1, day);
+        const parts = dateString.split('-');
+        // Note: months are 0-based in JavaScript's Date object (0 for January)
+        return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     };
 
     const liveIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() < now.getTime());
