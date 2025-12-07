@@ -18,21 +18,17 @@ export function IpoList() {
     if (!ipos) {
       return { liveIpos: [], upcomingIpos: [] };
     }
-    const now = new Date();
-    // CRITICAL FIX: Set time to 00:00:00 to compare dates only, not time.
-    // This ensures that an IPO for today's date is considered upcoming until the day is over.
-    now.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to midnight to compare dates only
 
-    // This robust date parsing logic ensures that date strings in "YYYY-MM-DD" format
-    // are parsed correctly across all browsers, avoiding timezone issues.
     const parseDate = (dateString: string) => {
-        const parts = dateString.split('-');
-        // Note: months are 0-based in JavaScript's Date object (0 for January)
-        return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+      const [year, month, day] = dateString.split('-').map(Number);
+      // new Date(year, monthIndex, day)
+      return new Date(year, month - 1, day);
     };
 
-    const liveIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() < now.getTime());
-    const upcomingIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() >= now.getTime());
+    const liveIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() < today.getTime());
+    const upcomingIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() >= today.getTime());
     
     // Sort both lists by date
     liveIpos.sort((a, b) => parseDate(b.ipoDate).getTime() - parseDate(a.ipoDate).getTime());
