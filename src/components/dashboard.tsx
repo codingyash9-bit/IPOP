@@ -12,10 +12,10 @@ export function Dashboard() {
       <div className="flex flex-col gap-8">
         <header className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold font-headline tracking-tight">
-            Upcoming IPOs
+            IPO Dashboard
           </h1>
           <p className="text-muted-foreground">
-            AI-powered insights into the next big market debuts.
+            AI-powered analysis of live, recent, and upcoming IPOs.
           </p>
         </header>
         {isLoading ? (
