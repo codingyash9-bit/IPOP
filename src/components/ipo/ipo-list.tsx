@@ -5,9 +5,8 @@ import type { Ipo } from '@/lib/types';
 import { IpoCard } from './ipo-card';
 import { collection } from 'firebase/firestore';
 import { Skeleton } from '../ui/skeleton';
-import { useMemo, useState } from 'react';
-import { Rocket } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useMemo } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 export function IpoList() {
@@ -23,12 +22,18 @@ export function IpoList() {
     // Set time to 00:00:00 to compare dates only, not time
     now.setHours(0, 0, 0, 0);
 
-    const liveIpos = ipos.filter(ipo => new Date(ipo.ipoDate).getTime() < now.getTime());
-    const upcomingIpos = ipos.filter(ipo => new Date(ipo.ipoDate).getTime() >= now.getTime());
+    // This logic ensures that date strings are parsed correctly across all browsers
+    const parseDate = (dateString: string) => {
+        const [year, month, day] = dateString.split('-').map(Number);
+        return new Date(year, month - 1, day);
+    };
+
+    const liveIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() < now.getTime());
+    const upcomingIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() >= now.getTime());
     
     // Sort both lists by date
-    liveIpos.sort((a, b) => new Date(b.ipoDate).getTime() - new Date(a.ipoDate).getTime());
-    upcomingIpos.sort((a, b) => new Date(a.ipoDate).getTime() - new Date(b.ipoDate).getTime());
+    liveIpos.sort((a, b) => parseDate(b.ipoDate).getTime() - parseDate(a.ipoDate).getTime());
+    upcomingIpos.sort((a, b) => parseDate(a.ipoDate).getTime() - parseDate(b.ipoDate).getTime());
 
     return { liveIpos, upcomingIpos };
   }, [ipos]);
