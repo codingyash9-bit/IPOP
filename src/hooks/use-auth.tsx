@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       user: appUser,
       isLoading: isFirebaseUserLoading || (isAuthenticated && isProfileLoading),
     }),
-    [isAuthenticated, isFirebaseUserLoading, isProfileLoading, appUser, login, logout]
+    [isAuthenticated, isFirebaseUserLoading, isProfileLoading, appUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
