@@ -19,36 +19,20 @@ export function IpoList() {
       return { liveIpos: [], upcomingIpos: [] };
     }
 
-    // Use UTC to avoid timezone issues.
+    // Get today's date and format it as a 'YYYY-MM-DD' string in UTC.
+    // This is the most reliable way to compare against the data format.
     const today = new Date();
-    const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const year = today.getUTCFullYear();
+    const month = (today.getUTCMonth() + 1).toString().padStart(2, '0');
+    const day = today.getUTCDate().toString().padStart(2, '0');
+    const todayString = `${year}-${month}-${day}`;
 
-    // This robustly parses YYYY-MM-DD into a UTC date.
-    const parseDate = (dateString: string): Date => {
-      const parts = dateString.split('-').map(Number);
-      // Ensure we have 3 parts (year, month, day)
-      if (parts.length === 3) {
-        const [year, month, day] = parts;
-        // JavaScript months are 0-indexed, so subtract 1 from the month.
-        return new Date(Date.UTC(year, month - 1, day));
-      }
-      // Return an invalid date if the format is wrong
-      return new Date(NaN);
-    };
+    const liveIpos = ipos.filter(ipo => ipo.ipoDate < todayString);
+    const upcomingIpos = ipos.filter(ipo => ipo.ipoDate >= todayString);
 
-    const liveIpos = ipos.filter(ipo => {
-      const ipoDate = parseDate(ipo.ipoDate);
-      return ipoDate.getTime() < todayUtc.getTime();
-    });
-    
-    const upcomingIpos = ipos.filter(ipo => {
-        const ipoDate = parseDate(ipo.ipoDate);
-        return ipoDate.getTime() >= todayUtc.getTime();
-    });
-    
-    // Sort both lists by date
-    liveIpos.sort((a, b) => parseDate(b.ipoDate).getTime() - parseDate(a.ipoDate).getTime());
-    upcomingIpos.sort((a, b) => parseDate(a.ipoDate).getTime() - parseDate(b.ipoDate).getTime());
+    // Sort both lists by date string directly
+    liveIpos.sort((a, b) => b.ipoDate.localeCompare(a.ipoDate));
+    upcomingIpos.sort((a, b) => a.ipoDate.localeCompare(b.ipoDate));
 
     return { liveIpos, upcomingIpos };
   }, [ipos]);
