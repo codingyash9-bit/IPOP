@@ -18,17 +18,33 @@ export function IpoList() {
     if (!ipos) {
       return { liveIpos: [], upcomingIpos: [] };
     }
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
+    // Use UTC to avoid timezone issues.
+    const today = new Date();
+    const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+
+    // This robustly parses YYYY-MM-DD into a UTC date.
     const parseDate = (dateString: string): Date => {
-      const [year, month, day] = dateString.split('-').map(Number);
-      // JavaScript months are 0-indexed (0 for January, 11 for December)
-      return new Date(year, month - 1, day);
+      const parts = dateString.split('-').map(Number);
+      // Ensure we have 3 parts (year, month, day)
+      if (parts.length === 3) {
+        const [year, month, day] = parts;
+        // JavaScript months are 0-indexed, so subtract 1 from the month.
+        return new Date(Date.UTC(year, month - 1, day));
+      }
+      // Return an invalid date if the format is wrong
+      return new Date(NaN);
     };
 
-    const liveIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() < today.getTime());
-    const upcomingIpos = ipos.filter(ipo => parseDate(ipo.ipoDate).getTime() >= today.getTime());
+    const liveIpos = ipos.filter(ipo => {
+      const ipoDate = parseDate(ipo.ipoDate);
+      return ipoDate.getTime() < todayUtc.getTime();
+    });
+    
+    const upcomingIpos = ipos.filter(ipo => {
+        const ipoDate = parseDate(ipo.ipoDate);
+        return ipoDate.getTime() >= todayUtc.getTime();
+    });
     
     // Sort both lists by date
     liveIpos.sort((a, b) => parseDate(b.ipoDate).getTime() - parseDate(a.ipoDate).getTime());
