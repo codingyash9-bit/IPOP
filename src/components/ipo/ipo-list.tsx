@@ -19,11 +19,11 @@ export function IpoList() {
       return { liveIpos: [], upcomingIpos: [] };
     }
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to midnight to compare dates only
+    today.setHours(0, 0, 0, 0);
 
-    const parseDate = (dateString: string) => {
+    const parseDate = (dateString: string): Date => {
       const [year, month, day] = dateString.split('-').map(Number);
-      // new Date(year, monthIndex, day)
+      // JavaScript months are 0-indexed (0 for January, 11 for December)
       return new Date(year, month - 1, day);
     };
 
