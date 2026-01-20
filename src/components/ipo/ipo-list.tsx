@@ -19,13 +19,9 @@ export function IpoList() {
       return { liveIpos: [], upcomingIpos: [] };
     }
 
-    // Get today's date and format it as a 'YYYY-MM-DD' string in UTC.
-    // This is the most reliable way to compare against the data format.
-    const today = new Date();
-    const year = today.getUTCFullYear();
-    const month = (today.getUTCMonth() + 1).toString().padStart(2, '0');
-    const day = today.getUTCDate().toString().padStart(2, '0');
-    const todayString = `${year}-${month}-${day}`;
+    // Use toISOString().slice(0, 10) to get a reliable 'YYYY-MM-DD' UTC date string.
+    // This avoids all timezone and local time issues.
+    const todayString = new Date().toISOString().slice(0, 10);
 
     const liveIpos = ipos.filter(ipo => ipo.ipoDate < todayString);
     const upcomingIpos = ipos.filter(ipo => ipo.ipoDate >= todayString);
