@@ -60,7 +60,7 @@ export function IpoList() {
   }
 
   return (
-    <Tabs defaultValue="upcoming" className="w-full">
+    <Tabs defaultValue="live" className="w-full">
       <TabsList className="grid w-full grid-cols-2 max-w-sm mx-auto">
         <TabsTrigger value="upcoming">Upcoming IPOs</TabsTrigger>
         <TabsTrigger value="live">Live & Listed</TabsTrigger>
