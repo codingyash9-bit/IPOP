@@ -20,6 +20,7 @@ type AuthContextType = {
   login: () => void;
   logout: () => void;
   user: AuthUser | null;
+  firebaseUser: FirebaseUser | null; // Expose the raw Firebase user
   isLoading: boolean;
 };
 
@@ -77,9 +78,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       login,
       logout,
       user: appUser,
+      firebaseUser: firebaseUser,
       isLoading: isFirebaseUserLoading || (isAuthenticated && isProfileLoading),
     }),
-    [isAuthenticated, isFirebaseUserLoading, isProfileLoading, appUser]
+    [isAuthenticated, isFirebaseUserLoading, isProfileLoading, appUser, firebaseUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

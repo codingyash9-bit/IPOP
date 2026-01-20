@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
 
 export function UserNav() {
-  const { user, logout } = useAuth();
+  const { user, firebaseUser, logout } = useAuth();
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -32,8 +32,19 @@ export function UserNav() {
 
   const handleUpgradeClick = () => {
     startTransition(async () => {
-      const result = await createStripeCheckoutSession();
-      if (result.error) {
+      if (!firebaseUser) {
+        toast({
+          variant: 'destructive',
+          title: 'Authentication Error',
+          description: 'User not found. Please sign in again.',
+        });
+        return;
+      }
+      
+      const idToken = await firebaseUser.getIdToken();
+      const result = await createStripeCheckoutSession(idToken);
+      
+      if (result?.error) {
         toast({
           variant: 'destructive',
           title: 'Error',
